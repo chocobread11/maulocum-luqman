@@ -1,0 +1,335 @@
+"use client";
+
+import { Button } from "../ui/button";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "@/lib/hooks/useSession";
+import {
+	Bookmark,
+	Copy,
+	Facebook,
+	MessageSquare,
+	MoreHorizontal,
+	SquareArrowOutUpRight,
+} from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Tooltip, TooltipContent } from "../ui/tooltip";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
+
+import type { JobDetail } from "@/lib/constant";
+import { jobDetailsArray } from "@/lib/constant";
+import ApplyJobDialog from "./apply-jobs-dialog";
+function JobDetails() {
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const selectedJobId = searchParams.get("id");
+	const [selectedJob, setSelectedJob] = useState<JobDetail | null>(null);
+
+	const { session, isPending } = useSession();
+
+	useEffect(() => {
+		if (selectedJobId) {
+			const job = jobDetailsArray.find((j) => j.id === selectedJobId);
+			setSelectedJob(job || null); // If job is undefined, set to null
+		} else {
+			setSelectedJob(null); // Clear selection if no ID
+		}
+	}, [selectedJobId]);
+
+	if (isPending) {
+		return (
+			<div className="w-full md:sticky md:top-20 h-auto md:h-full flex items-center justify-center p-4 rounded-lg shadow-sm bg-card border">
+				<p className="text-muted-foreground">Loading Jobs...</p>
+			</div>
+		);
+	}
+
+	if (!session) {
+		return (
+			<div className="w-full md:sticky md:top-20 h-auto md:h-full overflow-y-auto border p-4 rounded-lg shadow-sm bg-card/80 backdrop-blur-sm">
+				<h4 className="font-semibold text-lg mb-4 bg-card/90 backdrop-blur-md py-2 border-b flex items-center gap-2">
+					<span className="text-primary">🔒</span> Locum Details
+				</h4>
+				<div className="flex flex-col items-center justify-center text-center p-4 bg-muted/30 rounded-lg border border-dashed">
+					<div className="mb-4 p-3 bg-background/80 rounded-full">
+						<svg
+							width="24"
+							height="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							className="text-muted-foreground"
+						>
+							<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+							<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+					</div>
+					<p className="mb-4 text-muted-foreground">
+						You need to be logged in and verified to view job details.
+					</p>
+					<Button
+						className="mt-2 w-full sm:w-auto"
+						variant="default"
+						onClick={() => router.push("/login")}
+					>
+						Sign In
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
+	if (!selectedJob) {
+		return (
+			<div className="w-full h-full overflow-y-auto border p-4 rounded-lg shadow-sm bg-card">
+				<h4 className="font-semibold text-lg mb-4 sticky top-0 bg-card py-2 border-b">
+					Locum Details
+				</h4>
+				<p className="mb-4 text-muted-foreground">
+					Select a job from the list on the left to see more details here. This
+					panel will stick to the top as you scroll through jobs.
+				</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="w-full md:sticky md:top-20 h-auto md:max-h-[calc(97vh-4rem)] overflow-y-auto p-4 rounded-lg">
+			<div className="flex items-center justify-between font-semibold text-lg mb-4 py-2 border-b">
+				<h4>Locum Details</h4>
+				<div className="flex items-center gap-2">
+					<Tooltip>
+						<TooltipTrigger>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-8 w-8 cursor-pointer"
+								onClick={() => window.open(`/jobs/${selectedJob.id}`, "_blank")}
+							>
+								<SquareArrowOutUpRight className="h-4 w-4" />
+								<span className="sr-only">Open in new tab</span>
+							</Button>
+						</TooltipTrigger>
+						<TooltipContent>
+							<p>Open in new tab</p>
+						</TooltipContent>
+					</Tooltip>
+
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-8 w-8 cursor-pointer"
+					>
+						<Bookmark className="h-4 w-4" />
+						<span className="sr-only">Bookmark</span>
+					</Button>
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button variant="ghost" size="icon" className="h-8 w-8">
+								<MoreHorizontal className="h-4 w-4" />
+								<span className="sr-only">More options</span>
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-48 p-2">
+							<div className="flex flex-col gap-1">
+								<Button
+									variant="ghost"
+									size="sm"
+									className="flex justify-start"
+								>
+									<Facebook className="mr-2 h-4 w-4" />
+									<span>Share to Facebook</span>
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="flex justify-start"
+								>
+									<MessageSquare className="mr-2 h-4 w-4" />
+									<span>Share via WhatsApp</span>
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									className="flex justify-start"
+								>
+									<Copy className="mr-2 h-4 w-4" />
+									<span>Copy Link</span>
+								</Button>
+							</div>
+						</PopoverContent>
+					</Popover>
+				</div>
+			</div>
+
+			<div className="space-y-6 bg-white rounded-lg">
+				{/* Clinic Information at the top */}
+				<div className="mb-4">
+					<h5 className="text-xl font-semibold mb-2">
+						{selectedJob.clinicName}
+					</h5>
+					<div className="flex items-center mb-2">
+						<div className="flex items-center">
+							<span className="text-amber-500">
+								{"★".repeat(Math.floor(selectedJob.rating))}
+							</span>
+							<span className="text-muted-foreground">
+								{"★".repeat(5 - Math.floor(selectedJob.rating))}
+							</span>
+							<span className="text-sm ml-1 font-medium">
+								{selectedJob.rating}
+							</span>
+						</div>
+						<span className="text-xs text-muted-foreground ml-2">
+							({selectedJob.reviewCount} reviews by locums)
+						</span>
+					</div>
+					<p className="text-sm text-muted-foreground">{selectedJob.address}</p>
+					<a
+						href={selectedJob.gmapLink}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-xs text-primary hover:underline mt-1 inline-block"
+					>
+						View on Google Maps
+					</a>
+				</div>
+
+				{/* Key Information */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+					<div className="flex flex-col">
+						<span className="text-xs uppercase text-muted-foreground">
+							Location
+						</span>
+						<span className="font-medium">
+							{selectedJob.address.split(",")[2]?.trim() || "Location"}
+						</span>
+					</div>
+					<div className="flex flex-col">
+						<span className="text-xs uppercase text-muted-foreground">
+							Payment
+						</span>
+						<span className="font-medium">
+							{selectedJob.payment.split(" ")[0]}
+						</span>
+					</div>
+					<div className="flex flex-col">
+						<span className="text-xs uppercase text-muted-foreground">
+							Specialist
+						</span>
+						<span className="font-medium">General Practitioner</span>
+					</div>
+				</div>
+
+				{/* Highlighted Dates, Urgency & Hours */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+					<div className="bg-blue-50 rounded-lg p-3 flex-1">
+						<h6 className="text-xs uppercase text-blue-700 font-semibold mb-1">
+							Dates Needed
+						</h6>
+						<p className="text-blue-900 font-medium">
+							{selectedJob.dateNeeded}
+						</p>
+					</div>
+					<div className="bg-purple-50 rounded-lg p-3 flex-1">
+						<h6 className="text-xs uppercase text-purple-700 font-semibold mb-1">
+							Working Hours
+						</h6>
+						<p className="text-purple-900 font-medium">
+							{selectedJob.workingHours}
+						</p>
+					</div>
+					<div
+						className={`rounded-lg p-3 flex-1 ${
+							selectedJob.urgency === "Critical"
+								? "bg-red-50 text-red-900"
+								: selectedJob.urgency === "High"
+									? "bg-orange-50 text-orange-900"
+									: selectedJob.urgency === "Medium"
+										? "bg-yellow-50 text-yellow-900"
+										: "bg-green-50 text-green-900"
+						}`}
+					>
+						<h6
+							className={`text-xs uppercase font-semibold mb-1 ${
+								selectedJob.urgency === "Critical"
+									? "text-red-700"
+									: selectedJob.urgency === "High"
+										? "text-orange-700"
+										: selectedJob.urgency === "Medium"
+											? "text-yellow-700"
+											: "text-green-700"
+							}`}
+						>
+							Urgency Level
+						</h6>
+						<p className="font-medium">{selectedJob.urgency}</p>
+					</div>
+				</div>
+
+				{/* Description */}
+				<div className="mb-4">
+					<h5 className="font-medium mb-2">Description</h5>
+					<p className="text-sm text-muted-foreground">
+						{selectedJob.description}
+					</p>
+					<p className="text-xs text-muted-foreground mt-2">
+						Posted {selectedJob.createdAt}
+					</p>
+				</div>
+
+				{/* Rest of the details */}
+				<div className="mb-4">
+					<h5 className="font-medium mb-2">Job Responsibilities</h5>
+					<ul className="text-sm space-y-1.5">
+						{selectedJob.responsibilities.map((responsibility, index) => (
+							<li key={index} className="flex gap-2">
+								<span className="text-primary">•</span>
+								<span>{responsibility}</span>
+							</li>
+						))}
+					</ul>
+				</div>
+
+				<div className="mb-4">
+					<h5 className="font-medium mb-2">Facilities & Support</h5>
+					<p className="text-sm text-muted-foreground">
+						{selectedJob.facilities}
+					</p>
+				</div>
+
+				<div className="mb-4">
+					<h5 className="font-medium mb-2">Payment Details</h5>
+					<p className="text-sm text-muted-foreground">{selectedJob.payment}</p>
+				</div>
+
+				<div>
+					<h5 className="font-medium mb-2">Contact Person</h5>
+					{selectedJob.contacts.map((contact, index) => (
+						<div key={index} className="mb-2">
+							<p className="text-sm font-medium">
+								{contact.name}{" "}
+								<span className="font-normal text-muted-foreground">
+									({contact.role})
+								</span>
+							</p>
+							<p className="text-sm text-muted-foreground">{contact.phone}</p>
+						</div>
+					))}
+				</div>
+			</div>
+
+			<div className="sticky bottom-0 bg-card pt-4 pb-2 border-t mt-6">
+				<ApplyJobDialog
+					trigger={<Button>Apply Now</Button>}
+					jobTitle={selectedJob.clinicName}
+				/>
+			</div>
+		</div>
+	);
+}
+
+export default JobDetails;
