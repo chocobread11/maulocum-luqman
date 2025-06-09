@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<h1 align="center" id="title">MauLocum</h1>
 
-## Getting Started
+## <p id="description"> Modern platform that connects doctors with healthcare facilities for locum job opportunities</p>
 
-First, run the development server:
+<h2>🧐 Features</h2>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+*  ####  🧑‍⚕️ Locum Jobs discovery
+*  ####  🏢 Facility job postings & candidate management
+*  #### 🔒 Secure authentication
+*  ####  🥷 Anonymous review for both parties
+*   #### 💼 Verified professional only
+
+<h2>Project Screenshots:</h2>
+
+<img src="https://i.imgur.com/Xr03pQM.png" alt="project-screenshot" width="900" height="500/">
+
+<img src="https://i.imgur.com/wMrRnOe.png" alt="project-screenshot" width="900" height="500/">
+  
+ 
+
+<h2>🛠️ Installation Steps:</h2>
+
+
+<p>1. Open terminal and clone the repo</p>
+
+```
+https://github.com/krekz/maulocum.git
+cd maulocum
+```
+
+<p>2. Install all the project dependencies</p>
+
+> [!IMPORTANT]  
+> Ensure you are using BUN as package manager. Please download it [here](https://bun.sh/)
+
+```
+bun install
+```
+
+<p>3. Start the development server</p>
+
+```
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<h2>🍰 Contribution Guidelines:</h2>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Welcome to Maulocum’s codebase! We’re stoked you want to contribute. To keep things clean and organized, please follow these simple rules:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Git Branches:** Always create a new branch for your work. Use descriptive names like `feature/login-page` or `fix/navbar-bug`.  
+- **Commit Messages:** Use **conventional commit style** to make history easy to read and automate changelogs. Start your commit messages with one of these prefixes followed by a colon and a short description:
 
-## Learn More
+  - `feat:` — A new feature  
+  - `fix:` — A bug fix  
+  - `docs:` — Documentation changes  
+  - `style:` — Formatting, missing semi-colons, etc (no code change)  
+  - `refactor:` — Code change that neither fixes a bug nor adds a feature  
+  - `test:` — Adding or correcting tests  
+  - `chore:` — Maintenance tasks, build scripts, etc  
 
-To learn more about Next.js, take a look at the following resources:
+  **Examples:**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  - `feat: add login authentication`  
+  - `fix: resolve navbar dropdown bug`  
+  - `docs: update README with contribution guide`  
+  - `style: format code with prettier`  
+  - `refactor: simplify user profile component`  
+  - `test: add tests for API endpoints`  
+  - `chore: update dependencies`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Code Quality:** Write clean, readable code. Follow existing style and best practices.  
+- **Pull Requests:** Provide a clear description of what you changed and why. Reference any related issues.  
+- **Be Respectful:** Open source is all about collaboration. Keep feedback constructive and polite.
 
-## Deploy on Vercel
+Thanks for helping make Maulocum awesome!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+  
+  
+<h2>💻 Built with</h2>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Technologies used in the project:
+
+*   NextJs
+*   Prisma ORM
+*   PostgreSQL
+*   Supabase
+*   TailwindCSS
+*   HonoJs (ExpressJs alternative)
+*  Biome (Lint and Format)
