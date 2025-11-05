@@ -1,28 +1,17 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import {
+	ChevronDown,
+	ChevronUp,
+	FileText,
+	Heart,
+	History,
+	Menu,
+	User,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import {
-	Briefcase,
-	Calendar,
-	CreditCard,
-	FileText,
-	Settings,
-	User,
-	Building2,
-	MessageSquare,
-	BadgeHelp,
-	ChevronDown,
-	ChevronUp,
-	X,
-	Menu,
-	History,
-	Heart,
-	MonitorCog,
-	UserCog,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Sheet,

@@ -1,7 +1,6 @@
-import React from "react";
+import { Building, FileText, Search, Users } from "lucide-react";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { FileText, Search, Building, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function EmployerPage() {
 	return (

@@ -1,0 +1,87 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { client } from "@/lib/rpc-client";
+
+interface UseVerifiedDoctorsParams {
+	search?: string;
+	limit?: number;
+	offset?: number;
+}
+
+export function useVerifiedDoctors(params?: UseVerifiedDoctorsParams) {
+	return useQuery({
+		queryKey: ["admin", "doctors", "verified", params],
+		queryFn: async () => {
+			const searchParams: Record<string, string> = {};
+
+			if (params?.search) {
+				searchParams.search = params.search;
+			}
+			if (params?.limit) {
+				searchParams.limit = params.limit.toString();
+			}
+			if (params?.offset) {
+				searchParams.offset = params.offset.toString();
+			}
+
+			const res = await client.api.v2.admin.doctors.verified.$get({
+				query: searchParams,
+			});
+
+			if (!res.ok) {
+				throw new Error("Failed to fetch verified doctors");
+			}
+
+			return res.json();
+		},
+	});
+}
+
+export function usePendingVerifications() {
+	return useQuery({
+		queryKey: ["admin", "verifications", "pending"],
+		queryFn: async () => {
+			const res = await client.api.v2.admin.verifications.pending.$get();
+
+			if (!res.ok) {
+				throw new Error("Failed to fetch pending verifications");
+			}
+
+			return res.json();
+		},
+	});
+}
+
+interface VerificationActionParams {
+	verificationId: string;
+	action: "APPROVE" | "REJECT";
+	rejectionReason?: string;
+}
+
+export function useVerificationAction() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (params: VerificationActionParams) => {
+			const res = await client.api.v2.admin.verifications.action.$post({
+				json: params,
+			});
+
+			if (!res.ok) {
+				const error = (await res.json()) as { error?: string };
+				throw new Error(error.error || "Failed to process verification");
+			}
+
+			return res.json();
+		},
+		onSuccess: () => {
+			// Invalidate pending verifications to refetch
+			queryClient.invalidateQueries({
+				queryKey: ["admin", "verifications", "pending"],
+			});
+			// Also invalidate verified doctors list
+			queryClient.invalidateQueries({
+				queryKey: ["admin", "doctors", "verified"],
+			});
+		},
+	});
+}

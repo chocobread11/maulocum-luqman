@@ -1,26 +1,21 @@
 import {
 	Bell,
 	Book,
-	Menu,
-	Sunset,
-	Trees,
-	Zap,
 	Building,
-	Briefcase,
-	Users,
-	Search,
-	FileText,
-	Cog,
 	LogOut,
+	Menu,
+	Trees,
 	UserCog,
 } from "lucide-react";
-
+import Image from "next/image";
+import Link from "next/link";
 import {
 	Accordion,
 	AccordionContent,
 	AccordionItem,
 	AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	NavigationMenu,
@@ -31,22 +26,19 @@ import {
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import {
 	Sheet,
 	SheetContent,
 	SheetHeader,
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
-import { ProfileAvatar } from "@/components/profile/profile-avatar";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface MenuItem {
 	title: string;
@@ -138,7 +130,7 @@ const NavbarEmployer = async ({
 				<nav className="hidden justify-between lg:flex">
 					<div className="flex items-center gap-6">
 						<Link href={logo.url} className="flex items-center gap-2">
-							<img src={logo.src} className="w-8" alt={logo.alt} />
+							<Image src={logo.src} className="w-8" alt={logo.alt} />
 							<span className="text-lg font-semibold text-primary">
 								{logo.title}
 							</span>
@@ -256,7 +248,7 @@ const NavbarEmployer = async ({
 				<div className="block lg:hidden">
 					<div className="flex items-center justify-between">
 						<Link href={logo.url} className="flex items-center gap-2">
-							<img src={logo.src} className="w-8" alt={logo.alt} />
+							<Image src={logo.src} className="w-8" alt={logo.alt} />
 							<span className="text-lg font-semibold text-primary">
 								{logo.title}
 							</span>
@@ -271,7 +263,7 @@ const NavbarEmployer = async ({
 								<SheetHeader>
 									<SheetTitle>
 										<Link href={logo.url} className="flex items-center gap-2">
-											<img src={logo.src} className="w-8" alt={logo.alt} />
+											<Image src={logo.src} className="w-8" alt={logo.alt} />
 											<span className="text-lg font-semibold text-primary">
 												{logo.title}
 											</span>

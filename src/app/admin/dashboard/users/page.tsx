@@ -1,14 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
 import {
 	IconDotsVertical,
 	IconEdit,
-	IconTrash,
 	IconSearch,
-	IconFilter,
 	IconStar,
+	IconTrash,
 } from "@tabler/icons-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -17,22 +32,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 
 function UsersPage() {
 	const [search, setSearch] = useState("");

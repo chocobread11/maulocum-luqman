@@ -1,9 +1,8 @@
-import type { ReactNode } from "react";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ArrowRightIcon } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const BentoGrid = ({
 	children,
@@ -52,12 +51,12 @@ const BentoCard = ({
 			className,
 		)}
 	>
-		<div className="absolute inset-0 brightness-30 bg-black/20">{background}</div>
+		<div className="absolute inset-0 brightness-30 bg-black/20">
+			{background}
+		</div>
 		<div className="pointer-events-none relative z-20 flex transform-gpu flex-col gap-1 p-6 transition-all duration-300 group-hover:-translate-y-6">
 			<Icon className="h-12 w-12 origin-left transform-gpu text-neutral-300 transition-all duration-300 ease-in-out group-hover:scale-75" />
-			<h3 className="text-xl font-semibold">
-				{name}
-			</h3>
+			<h3 className="text-xl font-semibold">{name}</h3>
 			<p className="max-w-lg">{description}</p>
 		</div>
 
@@ -66,7 +65,12 @@ const BentoCard = ({
 				"pointer-events-none z-20 absolute bottom-0 flex w-full translate-y-6 transform-gpu flex-row items-center p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100",
 			)}
 		>
-			<Button variant="ghost" asChild size="sm" className="pointer-events-auto text-primary-foreground">
+			<Button
+				variant="ghost"
+				asChild
+				size="sm"
+				className="pointer-events-auto text-primary-foreground"
+			>
 				<Link href={href}>
 					{cta}
 					<ArrowRightIcon className="ml-2 h-4 w-4" />

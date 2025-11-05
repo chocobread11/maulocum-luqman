@@ -1,8 +1,8 @@
 "use client";
 
-import { useSession } from "@/lib/hooks/useSession";
 import { useSearchParams } from "next/navigation";
-import { JobListing, jobListingsData } from "@/lib/constant";
+import { jobListingsData } from "@/lib/constant";
+import { useSession } from "@/lib/hooks/useSession";
 
 function JobList() {
 	const { session, isPending } = useSession();

@@ -1,10 +1,8 @@
 "use client";
 
+import { FileText, Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Upload, FileText } from "lucide-react";
 import {
 	Dialog,
 	DialogContent,
@@ -14,6 +12,8 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 function ApplyJobDialog({
 	trigger,

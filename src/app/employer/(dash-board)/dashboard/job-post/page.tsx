@@ -1,11 +1,18 @@
 "use client";
 
+import { format } from "date-fns";
+import { Briefcase, CalendarIcon, Clock, DollarSign } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -13,23 +20,9 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-	CalendarIcon,
-	Clock,
-	MapPin,
-	Briefcase,
-	FileText,
-	DollarSign,
-} from "lucide-react";
-import { format } from "date-fns";
+import { Textarea } from "@/components/ui/textarea";
+import { SPECIALIST_OPTIONS } from "@/lib/constant";
 import { cn } from "@/lib/utils";
-import { STATE_OPTIONS, SPECIALIST_OPTIONS } from "@/lib/constant";
 
 function PostJobPage() {
 	const [date, setDate] = useState<Date>();

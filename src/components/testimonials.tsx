@@ -1,10 +1,10 @@
 "use client";
 
+import { motion, useAnimation, useInView } from "framer-motion";
+import { Quote, Star } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Quote, Star } from "lucide-react";
-import { motion, useAnimation, useInView } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
 import { Button } from "./ui/button";
 
 export interface Testimonial {

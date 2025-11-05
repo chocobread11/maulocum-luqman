@@ -1,4 +1,12 @@
-import React from "react";
+import {
+	ArrowLeft,
+	Calendar,
+	CheckCircle,
+	MapPin,
+	MessageSquare,
+	Star,
+} from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -10,16 +18,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-	Star,
-	MapPin,
-	Calendar,
-	CheckCircle,
-	MessageSquare,
-	ArrowLeft,
-} from "lucide-react";
-import Link from "next/link";
 import { DOCTORS } from "@/lib/constant";
 
 // Mock reviews data
@@ -133,7 +131,7 @@ interface DoctorPageProps {
 
 export default async function DoctorDetailsPage({ params }: DoctorPageProps) {
 	// Parse the ID parameter
-	const doctorId = Number.parseInt((await params).id);
+	const doctorId = Number.parseInt((await params).id, 10);
 
 	// Find the doctor by ID
 	const doctor = DOCTORS.find((doc) => doc.id === doctorId);
@@ -145,10 +143,6 @@ export default async function DoctorDetailsPage({ params }: DoctorPageProps) {
 
 	// Get reviews for this doctor
 	const reviews = DOCTOR_REVIEWS[doctorId as keyof typeof DOCTOR_REVIEWS] || [];
-
-	// Calculate average rating
-	const averageRating =
-		reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
 
 	// Generate rating distribution
 	const ratingDistribution = {

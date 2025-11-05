@@ -1,9 +1,9 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Bookmark, CalendarIcon, GlobeIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 function BookmarkPage() {
 	const [bookmarkedJobs, setBookmarkedJobs] = React.useState([

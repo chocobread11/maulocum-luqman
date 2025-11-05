@@ -1,5 +1,8 @@
-import { Bell, Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+"use client";
 
+import { Bell, Book, Menu } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import {
 	Accordion,
 	AccordionContent,
@@ -22,11 +25,10 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import Link from "next/link";
-import { getSession } from "@/lib/session";
+import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import { ProfileAvatar } from "./profile/profile-avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { cn } from "@/lib/utils";
 
 interface MenuItem {
 	title: string;
@@ -61,7 +63,7 @@ interface Navbar1Props {
 	};
 }
 
-const Navbar1 = async ({
+const Navbar1 = ({
 	logo = {
 		url: "/",
 		src: "https://www.shadcnblocks.com/images/block/block-1.svg",
@@ -117,8 +119,11 @@ const Navbar1 = async ({
 		signup: { text: "Sign up", url: "/register" },
 	},
 }: Navbar1Props) => {
-	const session = await getSession();
-	console.log(session);
+	const { data: session } = authClient.useSession();
+
+	const handleLogout = async () => {
+		await authClient.signOut();
+	};
 	return (
 		<section className="py-4 sticky top-0 z-50 bg-card">
 			<div className="md:container">
@@ -137,50 +142,52 @@ const Navbar1 = async ({
 						</div>
 					</div>
 					<div className="flex gap-2">
-						{/* Notifications */}
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									variant="ghost"
-									className="p-3 h-auto rounded-full focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2"
-								>
-									<div className="relative">
-										<Bell className="h-5 w-5" />
-										<span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500" />
-									</div>
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-80 p-4">
-								<div className="space-y-4">
-									<h4 className="font-medium">Notifications</h4>
-									<div className="border-t pt-4">
-										<div className="text-sm">You have no new notifications</div>
-									</div>
-								</div>
-							</PopoverContent>
-						</Popover>
-
-						{session ? (
-							<ProfileAvatar
-								imageSrc="https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=150&h=150"
-								fallback="JD"
-							/>
-						) : (
+						{session?.user ? (
 							<>
-								<Button asChild variant="outline" size="sm">
-									<Link href={auth.login.url}>{auth.login.text}</Link>
-								</Button>
-								<Button asChild size="sm">
-									<Link href={auth.signup.url}>{auth.signup.text}</Link>
-								</Button>
+								{/* Notifications */}
+								<Popover>
+									<PopoverTrigger asChild>
+										<Button
+											variant="ghost"
+											className="p-3 h-auto rounded-full focus-visible:ring-ring focus-visible:ring-2 focus-visible:ring-offset-2"
+										>
+											<div className="relative">
+												<Bell className="h-5 w-5" />
+												<span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500" />
+											</div>
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent className="w-80 p-4">
+										<div className="space-y-4">
+											<h4 className="font-medium">Notifications</h4>
+											<div className="border-t pt-4">
+												<div className="text-sm">
+													You have no new notifications
+												</div>
+											</div>
+										</div>
+									</PopoverContent>
+								</Popover>
+								<ProfileAvatar
+									imageSrc={
+										session.user.image ||
+										"https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=150&h=150"
+									}
+									fallback={session.user.name?.charAt(0).toUpperCase() || "U"}
+									onLogout={handleLogout}
+								/>
 							</>
+						) : (
+							<Button asChild variant="outline" size="sm">
+								<Link href={auth.login.url}>{auth.login.text}</Link>
+							</Button>
 						)}
 					</div>
 				</nav>
 				<div className="block lg:hidden">
 					<div className="flex items-center justify-between px-3">
 						<Link href={logo.url} className="flex items-center gap-2">
-							<img src={logo.src} className="w-8" alt={logo.alt} />
+							<Image src={logo.src} className="w-8" alt={logo.alt} />
 							<span className="text-lg font-semibold">{logo.title}</span>
 						</Link>
 						<Sheet>
@@ -193,7 +200,7 @@ const Navbar1 = async ({
 								<SheetHeader>
 									<SheetTitle>
 										<Link href={logo.url} className="flex items-center gap-2">
-											<img src={logo.src} className="w-8" alt={logo.alt} />
+											<Image src={logo.src} className="w-8" alt={logo.alt} />
 											<span className="text-lg font-semibold">
 												{logo.title}
 											</span>
@@ -222,12 +229,25 @@ const Navbar1 = async ({
 										</div>
 									</div>
 									<div className="flex flex-col gap-3">
-										<Button asChild variant="outline">
-											<Link href={auth.login.url}>{auth.login.text}</Link>
-										</Button>
-										<Button asChild>
-											<Link href={auth.signup.url}>{auth.signup.text}</Link>
-										</Button>
+										{session?.user ? (
+											<>
+												<div className="flex items-center gap-3 p-3 border rounded-md">
+													<div className="flex-1">
+														<p className="font-medium">{session.user.name}</p>
+														<p className="text-sm text-muted-foreground">
+															{session.user.email}
+														</p>
+													</div>
+												</div>
+												<Button onClick={handleLogout} variant="outline">
+													Log out
+												</Button>
+											</>
+										) : (
+											<Button asChild variant="outline">
+												<Link href={auth.login.url}>{auth.login.text}</Link>
+											</Button>
+										)}
 									</div>
 								</div>
 							</SheetContent>

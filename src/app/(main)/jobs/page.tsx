@@ -1,12 +1,12 @@
 "use client";
 
+import React, { Suspense } from "react";
 import { FilterCombobox } from "@/components/filter-combobox";
 import JobDetails from "@/components/jobs/job-details";
 import JobList from "@/components/jobs/job-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SPECIALIST_OPTIONS, STATE_OPTIONS } from "@/lib/constant";
-import React, { Suspense } from "react";
 
 function JobsPage() {
 	const [selectedState, setSelectedState] = React.useState<string>("all");

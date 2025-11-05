@@ -1,16 +1,15 @@
-import React from "react";
+import { Briefcase, Building2, MapPin, Search, Star } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Building2, MapPin, Star, Briefcase, Search } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { jobDetailsArray } from "@/lib/constant";
 
 function FacilitiesPage() {
@@ -54,7 +53,7 @@ function FacilitiesPage() {
 	return (
 		<div className="relative w-full">
 			<div className="absolute inset-0 h-48 sm:h-56 md:h-64 overflow-hidden">
-				<img
+				<Image
 					src="https://plus.unsplash.com/premium_photo-1665657351119-b7283189656c?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDE3fGJvOGpRS1RhRTBZfHxlbnwwfHx8fHw%3D"
 					alt="Medical facilities banner"
 					className="w-full h-full object-cover brightness-20"
@@ -101,7 +100,7 @@ function FacilitiesPage() {
 								<div className="flex items-center gap-2 sm:gap-3">
 									<div className="h-10 sm:h-12 w-10 sm:w-12 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
 										{facility.logoUrl ? (
-											<img
+											<Image
 												src={facility.logoUrl}
 												alt={facility.name}
 												className="h-7 sm:h-8 w-7 sm:w-8 object-contain"

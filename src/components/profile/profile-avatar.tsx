@@ -1,5 +1,15 @@
 "use client";
 
+import Cookies from "js-cookie";
+import {
+	Bookmark,
+	LogOut,
+	type LucideIcon,
+	Stethoscope,
+	User,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -8,23 +18,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-	Bookmark,
-	Cog,
-	LogOut,
-	Stethoscope,
-	User,
-	type LucideIcon,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
-import Cookies from "js-cookie";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 interface ProfileAvatarProps {
 	imageSrc?: string;
 	fallback: string;
 	className?: string;
+	onLogout?: () => void;
 }
 
 interface ProfileLinkItem {
@@ -39,6 +39,7 @@ export function ProfileAvatar({
 	imageSrc,
 	fallback,
 	className,
+	onLogout,
 }: ProfileAvatarProps) {
 	const [open, setOpen] = React.useState(false);
 	const pathname = usePathname();
@@ -57,10 +58,12 @@ export function ProfileAvatar({
 			label: "Logout",
 			icon: LogOut,
 			isDestructive: true,
-			onClickAction: () => {
-				Cookies.remove("user");
-				window.location.reload();
-			},
+			onClickAction:
+				onLogout ||
+				(() => {
+					Cookies.remove("user");
+					window.location.reload();
+				}),
 		},
 	];
 

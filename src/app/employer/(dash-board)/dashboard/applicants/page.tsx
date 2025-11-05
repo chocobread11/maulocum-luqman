@@ -1,6 +1,5 @@
-import { DataTable } from "@/components/data-table";
-import React from "react";
 import { ApplicantsTable } from "./_components/applicants-table";
+
 function Applicants() {
 	// Mock data for applicants
 	const mockApplicants = [

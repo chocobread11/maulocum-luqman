@@ -1,9 +1,6 @@
 "use client";
 
-import { Button } from "../ui/button";
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useSession } from "@/lib/hooks/useSession";
+import { TooltipTrigger } from "@radix-ui/react-tooltip";
 import {
 	Bookmark,
 	Copy,
@@ -12,13 +9,16 @@ import {
 	MoreHorizontal,
 	SquareArrowOutUpRight,
 } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Tooltip, TooltipContent } from "../ui/tooltip";
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
-
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import type { JobDetail } from "@/lib/constant";
 import { jobDetailsArray } from "@/lib/constant";
+import { useSession } from "@/lib/hooks/useSession";
+import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Tooltip, TooltipContent } from "../ui/tooltip";
 import ApplyJobDialog from "./apply-jobs-dialog";
+
 function JobDetails() {
 	const searchParams = useSearchParams();
 	const router = useRouter();

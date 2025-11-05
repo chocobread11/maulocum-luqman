@@ -1,19 +1,16 @@
-import React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
-	MapPin,
-	Phone,
-	Mail,
-	Globe,
 	Clock,
 	Edit,
-	User,
+	Globe,
+	Mail,
+	MapPin,
+	Phone,
 	Shield,
-	Settings,
+	User,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 function EmployerProfilePage() {
 	return (

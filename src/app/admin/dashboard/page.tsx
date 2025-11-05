@@ -1,8 +1,7 @@
-import React from "react";
-import { SectionCards } from "../_components/admin-section-cards";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { SectionCards } from "../_components/admin-section-cards";
 
-function AdminDashboardPage() {
+async function AdminDashboardPage() {
 	return (
 		<>
 			<SectionCards />

@@ -1,23 +1,19 @@
 "use client";
 
-import type * as React from "react";
 import {
 	IconCamera,
-	IconChartBar,
 	IconDashboard,
 	IconDatabase,
 	IconFileAi,
 	IconFileDescription,
-	IconFileWord,
-	IconFolder,
 	IconHelp,
 	IconInnerShadowTop,
-	IconListDetails,
 	IconReport,
 	IconSearch,
 	IconSettings,
 	IconUsers,
 } from "@tabler/icons-react";
+import type * as React from "react";
 
 import { NavJobs } from "@/components/nav-jobs";
 import { NavMain } from "@/components/nav-main";
@@ -160,10 +156,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className="data-[slot=sidebar-menu-button]:!p-1.5"
+							className="data-[slot=sidebar-menu-button]:p-1.5!"
 						>
 							<a href="/employer">
-								<IconInnerShadowTop className="!size-5" />
+								<IconInnerShadowTop className="size-5!" />
 								<span className="text-base font-semibold">MauLocum</span>
 							</a>
 						</SidebarMenuButton>

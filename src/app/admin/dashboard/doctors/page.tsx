@@ -1,6 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import { IconDotsVertical } from "@tabler/icons-react";
+import { useSearchParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
 	Table,
 	TableBody,
@@ -9,179 +18,115 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { IconDotsVertical, IconSearch, IconFilter } from "@tabler/icons-react";
+import { useVerifiedDoctors } from "@/lib/hooks/useAdminDoctors";
+import { DoctorsSearch } from "./doctors-search";
 
 function DoctorsPage() {
-	const [searchQuery, setSearchQuery] = useState("");
-	const [filterStatus, setFilterStatus] = useState("all");
+	const searchParams = useSearchParams();
+	const search = searchParams.get("search") || undefined;
 
-	// Mock data for doctors
-	const doctors = [
-		{
-			id: 1,
-			name: "Dr. Sarah Johnson",
-			apcLicenseId: "APC12345",
-			status: "active",
-			completedLocum: 24,
-			rating: 4.8,
-			specialty: "General Practice",
-		},
-		{
-			id: 2,
-			name: "Dr. Michael Chen",
-			apcLicenseId: "APC67890",
-			status: "active",
-			completedLocum: 18,
-			rating: 4.5,
-			specialty: "Pediatrics",
-		},
-		{
-			id: 3,
-			name: "Dr. Emily Rodriguez",
-			apcLicenseId: "APC54321",
-			status: "expired",
-			completedLocum: 32,
-			rating: 4.9,
-			specialty: "Emergency Medicine",
-		},
-		{
-			id: 4,
-			name: "Dr. James Wilson",
-			apcLicenseId: "APC98765",
-			status: "pending",
-			completedLocum: 0,
-			rating: 0,
-			specialty: "Cardiology",
-		},
-		{
-			id: 5,
-			name: "Dr. Aisha Patel",
-			apcLicenseId: "APC24680",
-			status: "expired",
-			completedLocum: 28,
-			rating: 4.7,
-			specialty: "Psychiatry",
-		},
-	];
+	const { data, isLoading, error } = useVerifiedDoctors({ search });
 
-	// Filter doctors based on search query and status
-	const filteredDoctors = doctors.filter((doctor) => {
-		const matchesSearch =
-			doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			doctor.apcLicenseId.toLowerCase().includes(searchQuery.toLowerCase());
-		const matchesStatus =
-			filterStatus === "all" || doctor.status === filterStatus;
-		return matchesSearch && matchesStatus;
-	});
+	const doctors = data?.doctors || [];
+	const total = data?.total || 0;
 
 	return (
 		<div className="px-6 w-full mx-auto">
 			<div className="flex justify-between items-center mb-6">
-				<h1 className="text-2xl font-bold">Doctors Management</h1>
-				<Button>Add New Doctor</Button>
-			</div>
-
-			<div className="flex justify-between items-center mb-4">
-				<div className="flex items-center space-x-2 w-1/3">
-					<Input
-						placeholder="Search doctors..."
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
-						className="max-w-sm"
-					/>
-				</div>
-				<div className="flex items-center space-x-2">
-					<Select value={filterStatus} onValueChange={setFilterStatus}>
-						<SelectTrigger className="w-[180px]">
-							<div className="flex items-center">
-								<IconFilter className="mr-2 h-4 w-4" />
-								<span>
-									Status:{" "}
-									{filterStatus.charAt(0).toUpperCase() + filterStatus.slice(1)}
-								</span>
-							</div>
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">All</SelectItem>
-							<SelectItem value="active">Active</SelectItem>
-							<SelectItem value="expired">Expired</SelectItem>
-						</SelectContent>
-					</Select>
+				<div>
+					<h1 className="text-2xl font-bold">Verified Doctors</h1>
+					<p className="text-sm text-muted-foreground mt-1">
+						Total: {total} verified doctor{total !== 1 ? "s" : ""}
+					</p>
 				</div>
 			</div>
 
-			<div className="rounded-md border">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead>Name</TableHead>
-							<TableHead>APC License ID</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead>Completed Locum</TableHead>
-							<TableHead>Rating</TableHead>
-							<TableHead>Specialty</TableHead>
-							<TableHead className="text-right">Actions</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{filteredDoctors.map((doctor) => (
-							<TableRow key={doctor.id}>
-								<TableCell className="font-medium">{doctor.name}</TableCell>
-								<TableCell>{doctor.apcLicenseId}</TableCell>
-								<TableCell>
-									<Badge
-										variant={
-											doctor.status === "active"
-												? "default"
-												: doctor.status === "pending"
-													? "secondary"
-													: "destructive"
-										}
-									>
-										{doctor.status.charAt(0).toUpperCase() +
-											doctor.status.slice(1)}
-									</Badge>
-								</TableCell>
-								<TableCell>{doctor.completedLocum}</TableCell>
-								<TableCell>{doctor.rating}/5.0</TableCell>
-								<TableCell>{doctor.specialty}</TableCell>
-								<TableCell className="text-right">
-									<DropdownMenu>
-										<DropdownMenuTrigger asChild>
-											<Button variant="ghost" className="h-8 w-8 p-0">
-												<IconDotsVertical className="h-4 w-4" />
-											</Button>
-										</DropdownMenuTrigger>
-										<DropdownMenuContent align="end">
-											<DropdownMenuItem>View Profile</DropdownMenuItem>
-											<DropdownMenuItem>Edit Details</DropdownMenuItem>
-											<DropdownMenuItem className="text-red-600">
-												Suspend Account
-											</DropdownMenuItem>
-										</DropdownMenuContent>
-									</DropdownMenu>
-								</TableCell>
+			<div className="mb-4">
+				<DoctorsSearch />
+			</div>
+
+			{isLoading ? (
+				<div className="rounded-md border p-8 text-center">
+					<div className="flex items-center justify-center gap-2">
+						<div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+						<p className="text-muted-foreground">Loading doctors...</p>
+					</div>
+				</div>
+			) : error ? (
+				<div className="rounded-md border border-destructive p-8 text-center">
+					<p className="text-destructive">
+						Error loading doctors: {error.message}
+					</p>
+				</div>
+			) : doctors.length === 0 ? (
+				<div className="rounded-md border p-8 text-center">
+					<p className="text-muted-foreground">
+						{search
+							? "No doctors found matching your search."
+							: "No verified doctors yet."}
+					</p>
+				</div>
+			) : (
+				<div className="rounded-md border">
+					<Table>
+						<TableHeader>
+							<TableRow>
+								<TableHead>Name</TableHead>
+								<TableHead>Email</TableHead>
+								<TableHead>APC Number</TableHead>
+								<TableHead>Specialty</TableHead>
+								<TableHead>Experience</TableHead>
+								<TableHead>Location</TableHead>
+								<TableHead>Status</TableHead>
+								<TableHead className="text-right">Actions</TableHead>
 							</TableRow>
-						))}
-					</TableBody>
-				</Table>
-			</div>
+						</TableHeader>
+						<TableBody>
+							{doctors.map((doctor) => (
+								<TableRow key={doctor.id}>
+									<TableCell className="font-medium">{doctor.name}</TableCell>
+									<TableCell className="text-sm text-muted-foreground">
+										{doctor.email}
+									</TableCell>
+									<TableCell>
+										{doctor.doctorVerification?.apcNumber || "N/A"}
+									</TableCell>
+									<TableCell>
+										{doctor.doctorVerification?.specialty || "Not specified"}
+									</TableCell>
+									<TableCell>
+										{doctor.doctorVerification?.yearsOfExperience || 0} years
+									</TableCell>
+									<TableCell>
+										{doctor.doctorVerification?.location ||
+											doctor.location ||
+											"N/A"}
+									</TableCell>
+									<TableCell>
+										<Badge variant="default">Verified</Badge>
+									</TableCell>
+									<TableCell className="text-right">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="ghost" className="h-8 w-8 p-0">
+													<IconDotsVertical className="h-4 w-4" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem>View Profile</DropdownMenuItem>
+												<DropdownMenuItem>View APC Document</DropdownMenuItem>
+												<DropdownMenuItem className="text-red-600">
+													Revoke Verification
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</div>
+			)}
 		</div>
 	);
 }
