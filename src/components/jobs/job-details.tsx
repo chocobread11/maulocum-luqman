@@ -97,6 +97,87 @@ function JobDetails({ jobListings }: { jobListings?: JobResponse }) {
 		);
 	}
 
+	const hasFullAccess = "title" in selectedJob;
+
+	if (!hasFullAccess) {
+		const limitedJob = selectedJob;
+		return (
+			<div className="w-full md:sticky md:top-20 h-auto md:max-h-[calc(97vh-4rem)] overflow-y-auto p-4 rounded-lg border bg-card">
+				<div className="flex items-center justify-between font-semibold text-lg mb-4 py-2 border-b">
+					<h4 className="flex items-center gap-2">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+						>
+							<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+							<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+						Limited Access
+					</h4>
+				</div>
+				<div className="space-y-6">
+					<div className="bg-muted/30 rounded-lg p-6 border border-dashed text-center">
+						<div className="mb-4 p-4 bg-background/80 rounded-full inline-flex">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="32"
+								height="32"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								className="text-muted-foreground"
+							>
+								<rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+								<path d="M7 11V7a5 5 0 0 1 10 0v4" />
+							</svg>
+						</div>
+						<h5 className="font-semibold mb-2">
+							Sign in as Doctor to View Full Details
+						</h5>
+						<p className="text-sm text-muted-foreground mb-4">
+							Get access to complete job information, facility details, and
+							apply to positions.
+						</p>
+						<Button onClick={() => router.push("/login")}>Sign In</Button>
+					</div>
+
+					<div className="space-y-4">
+						<h5 className="font-medium">Available Information</h5>
+						<div className="grid grid-cols-2 gap-3">
+							<div className="bg-accent/50 p-3 rounded">
+								<p className="text-xs text-muted-foreground mb-1">Pay Basis</p>
+								<p className="font-medium">{limitedJob.payBasis}</p>
+							</div>
+							<div className="bg-accent/50 p-3 rounded">
+								<p className="text-xs text-muted-foreground mb-1">Start Date</p>
+								<p className="font-medium">
+									{new Date(limitedJob.startDate).toLocaleDateString()}
+								</p>
+							</div>
+							<div className="bg-accent/50 p-3 rounded">
+								<p className="text-xs text-muted-foreground mb-1">End Date</p>
+								<p className="font-medium">
+									{new Date(limitedJob.endDate).toLocaleDateString()}
+								</p>
+							</div>
+							<div className="bg-muted/30 p-3 rounded flex items-center justify-center">
+								<span className="text-sm text-muted-foreground">
+									🔒 More details locked
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="w-full md:sticky md:top-20 h-auto md:max-h-[calc(97vh-4rem)] overflow-y-auto p-4 rounded-lg">
 			<div className="flex items-center justify-between font-semibold text-lg mb-4 py-2 border-b">
@@ -170,16 +251,19 @@ function JobDetails({ jobListings }: { jobListings?: JobResponse }) {
 					</h5>
 					<div className="flex items-center mb-2">
 						<div className="flex items-center">
-							<span className="text-amber-500">
-								{"★".repeat(
-									Math.floor(
-										selectedJob.facility.reviews
-											.map((review) => review.rating)
-											.reduce((a, b) => a + b, 0) /
-											selectedJob.facility.reviews.length,
-									),
+							{selectedJob.facility.reviews &&
+								selectedJob.facility.reviews.length > 0 && (
+									<span className="text-amber-500">
+										{"★".repeat(
+											Math.floor(
+												selectedJob.facility.reviews
+													.map((review) => review.rating)
+													.reduce((a, b) => a + b, 0) /
+													selectedJob.facility.reviews.length,
+											),
+										)}
+									</span>
 								)}
-							</span>
 							{/* <span className="text-muted-foreground">
 								{"★".repeat(5 - Math.floor(selectedJob.rating))}
 							</span> */}
