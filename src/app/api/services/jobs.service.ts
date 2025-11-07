@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "../../../../prisma/generated/prisma/client";
 import type {
 	CreateJobApplicationInput,
 	CreateJobInput,
@@ -62,7 +63,7 @@ export class JobService {
 			limit,
 		} = query;
 
-		const where: any = {};
+		const where: Prisma.JobWhereInput = {};
 
 		if (status) where.status = status;
 		if (urgency) where.urgency = urgency;
