@@ -1,179 +1,117 @@
 "use client";
 
-import {
-	IconCamera,
-	IconDashboard,
-	IconDatabase,
-	IconFileAi,
-	IconFileDescription,
-	IconHelp,
-	IconInnerShadowTop,
-	IconReport,
-	IconSearch,
-	IconSettings,
-	IconUsers,
-} from "@tabler/icons-react";
+import { GalleryVerticalEnd, Minus, Plus } from "lucide-react";
+import { usePathname } from "next/navigation";
 import type * as React from "react";
-
-import { NavJobs } from "@/components/nav-jobs";
-import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
 import {
 	Sidebar,
 	SidebarContent,
-	SidebarFooter,
+	SidebarGroup,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarMenuSub,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem,
+	SidebarRail,
 } from "@/components/ui/sidebar";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "./ui/collapsible";
 
-const data = {
-	user: {
-		name: "Klinik One Medic",
-		email: "klinik@onemedic.com",
-		avatar: "https://source.unsplash.com/random/400x400/?logo,medical,clinic",
-	},
-	navMain: [
-		{
-			title: "Dashboard",
-			url: "/employer/dashboard",
-			icon: IconDashboard,
-		},
-		{
-			title: "Applicants",
-			url: "/employer/dashboard/applicants",
-			icon: IconUsers,
-		},
-		// {
-		// 	title: "Analytics",
-		// 	url: "/employer/analytics",
-		// 	icon: IconChartBar,
-		// },
-	],
-	navClouds: [
-		{
-			title: "Recruitment",
-			icon: IconCamera,
-			isActive: true,
-			url: "#",
-			items: [
-				{
-					title: "Active Listings",
-					url: "/employer/listings/active",
-				},
-				{
-					title: "Drafts",
-					url: "/employer/listings/drafts",
-				},
-				{
-					title: "Expired",
-					url: "/employer/listings/expired",
-				},
-			],
-		},
-		{
-			title: "Doctors",
-			icon: IconFileDescription,
-			url: "#",
-			items: [
-				{
-					title: "Talent Pool",
-					url: "/employer/doctors/pool",
-				},
-				{
-					title: "Favorites",
-					url: "/employer/doctors/favorites",
-				},
-				{
-					title: "Previous Hires",
-					url: "/employer/doctors/previous",
-				},
-			],
-		},
-		{
-			title: "Contracts",
-			icon: IconFileAi,
-			url: "#",
-			items: [
-				{
-					title: "Active Contracts",
-					url: "/employer/contracts/active",
-				},
-				{
-					title: "Pending Approval",
-					url: "/employer/contracts/pending",
-				},
-				{
-					title: "Completed",
-					url: "/employer/contracts/completed",
-				},
-			],
-		},
-	],
-	navSecondary: [
-		{
-			title: "Clinic Profile",
-			url: "/employer/profile",
-			icon: IconSettings,
-		},
-		{
-			title: "Support",
-			url: "#",
-			icon: IconHelp,
-		},
-		{
-			title: "Search Doctors",
-			url: "/employer/doctors",
-			icon: IconSearch,
-		},
-	],
-	documents: [
-		{
-			name: "Posting",
-			url: "/employer/dashboard/job-post",
-			icon: IconReport,
-		},
-		{
-			name: "History",
-			url: "/employer/dashboard/jobs",
-			icon: IconDatabase,
-		},
-		// {
-		// 	name: "Job Description Templates",
-		// 	url: "/employer/templates",
-		// 	icon: IconFileWord,
-		// },
-	],
-};
+interface SidebarData {
+	basic: Array<{
+		title: string;
+		url: string;
+	}>;
+	collapsible: Array<{
+		title: string;
+		url: string;
+		items?: Array<{
+			title: string;
+			url: string;
+		}>;
+	}>;
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+	data: SidebarData;
+}
+
+export function AppSidebar({ data, ...props }: AppSidebarProps) {
+	const pathname = usePathname();
+
 	return (
-		<Sidebar collapsible="offcanvas" {...props}>
+		<Sidebar {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton
-							asChild
-							className="data-[slot=sidebar-menu-button]:p-1.5!"
-						>
-							<a href="/employer">
-								<IconInnerShadowTop className="size-5!" />
-								<span className="text-base font-semibold">MauLocum</span>
+						<SidebarMenuButton size="lg" asChild>
+							<a href="/admin/dashboard">
+								<div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+									<GalleryVerticalEnd className="size-4" />
+								</div>
+								<div className="flex flex-col gap-0.5 leading-none">
+									<span className="font-medium">MauLocum</span>
+									<span className="">v1.0.0</span>
+								</div>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
-				<NavJobs items={data.documents} />
-				<NavSecondary items={data.navSecondary} className="mt-auto" />
+				<SidebarGroup>
+					<SidebarMenu>
+						{data.basic.map((item) => (
+							<SidebarMenuItem key={item.title}>
+								<SidebarMenuButton asChild isActive={pathname === item.url}>
+									<a href={item.url}>{item.title}</a>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						))}
+						{data.collapsible.map((item) => (
+							<Collapsible
+								key={item.title}
+								defaultOpen={item.items?.some(
+									(subItem) => pathname === subItem.url,
+								)}
+								className="group/collapsible"
+							>
+								<SidebarMenuItem>
+									<CollapsibleTrigger asChild>
+										<SidebarMenuButton>
+											{item.title}{" "}
+											<Plus className="ml-auto group-data-[state=open]/collapsible:hidden" />
+											<Minus className="ml-auto group-data-[state=closed]/collapsible:hidden" />
+										</SidebarMenuButton>
+									</CollapsibleTrigger>
+									{item.items?.length ? (
+										<CollapsibleContent>
+											<SidebarMenuSub>
+												{item.items.map((item) => (
+													<SidebarMenuSubItem key={item.title}>
+														<SidebarMenuSubButton
+															asChild
+															isActive={pathname === item.url}
+														>
+															<a href={item.url}>{item.title}</a>
+														</SidebarMenuSubButton>
+													</SidebarMenuSubItem>
+												))}
+											</SidebarMenuSub>
+										</CollapsibleContent>
+									) : null}
+								</SidebarMenuItem>
+							</Collapsible>
+						))}
+					</SidebarMenu>
+				</SidebarGroup>
 			</SidebarContent>
-			<SidebarFooter>
-				<NavUser user={data.user} />
-			</SidebarFooter>
+			<SidebarRail />
 		</Sidebar>
 	);
 }

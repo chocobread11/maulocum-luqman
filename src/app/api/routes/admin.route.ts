@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "../../../../prisma/generated/prisma/client";
 
 // Schema for verification approval/rejection
 const verificationActionSchema = z.object({
@@ -11,8 +12,8 @@ const verificationActionSchema = z.object({
 });
 
 const app = new Hono()
-	// Get all pending verification requests
-	.get("/verifications/pending", async (c) => {
+	// Get all pending doctor verification requests
+	.get("/doctors/verifications/pending", async (c) => {
 		try {
 			const verifications = await prisma.doctorProfile.findMany({
 				where: { verificationStatus: "PENDING" },
@@ -38,7 +39,7 @@ const app = new Hono()
 	})
 	// Get all verifications with filters
 	.get(
-		"/verifications",
+		"/doctors/verifications",
 		zValidator(
 			"query",
 			z.object({
@@ -51,7 +52,9 @@ const app = new Hono()
 			const { status, limit, offset } = c.req.valid("query");
 
 			try {
-				const where = status ? { verificationStatus: status } : {};
+				const where: Prisma.DoctorProfileWhereInput = status
+					? { verificationStatus: status }
+					: {};
 
 				const [verifications, total] = await Promise.all([
 					prisma.doctorProfile.findMany({
@@ -89,7 +92,7 @@ const app = new Hono()
 		},
 	)
 	// Get single verification details
-	.get("/verifications/:verificationId", async (c) => {
+	.get("/doctors/verifications/:verificationId", async (c) => {
 		const verificationId = c.req.param("verificationId");
 
 		try {
@@ -123,7 +126,7 @@ const app = new Hono()
 	})
 	// Approve or reject verification
 	.post(
-		"/verifications/action",
+		"/doctors/verifications/action",
 		zValidator("json", verificationActionSchema),
 		async (c) => {
 			const { verificationId, action, rejectionReason } = c.req.valid("json");
@@ -201,7 +204,7 @@ const app = new Hono()
 		},
 	)
 	// Get verification statistics
-	.get("/verifications/stats", async (c) => {
+	.get("/doctors/verifications/stats", async (c) => {
 		try {
 			const [pending, approved, rejected, total] = await Promise.all([
 				prisma.doctorProfile.count({
@@ -230,13 +233,13 @@ const app = new Hono()
 		}
 	})
 	// Get verified doctors only
-	.get("/doctors/verified", async (c) => {
+	.get("/doctors/verifications/verified", async (c) => {
 		const search = c.req.query("search") || "";
 		const limit = parseInt(c.req.query("limit") || "50", 10);
 		const offset = parseInt(c.req.query("offset") || "0", 10);
 
 		try {
-			const where: any = {
+			const where: Prisma.UserWhereInput = {
 				role: "DOCTOR",
 				doctorProfile: {
 					verificationStatus: "APPROVED",
@@ -278,6 +281,35 @@ const app = new Hono()
 		} catch (error) {
 			console.error("Error fetching verified doctors:", error);
 			return c.json({ error: "Failed to fetch verified doctors" }, 500);
+		}
+	})
+	// Get all pending facility verifications
+	.get("/facilities/verifications", async (c) => {
+		try {
+			const verifications = await prisma.facilityVerification.findMany({
+				where: { verificationStatus: "PENDING" },
+				include: {
+					facility: {
+						include: {
+							owner: {
+								select: {
+									id: true,
+									name: true,
+									email: true,
+									phoneNumber: true,
+									createdAt: true,
+								},
+							},
+						},
+					},
+				},
+				orderBy: { createdAt: "desc" },
+			});
+
+			return c.json({ verifications, count: verifications.length });
+		} catch (error) {
+			console.error("Error fetching pending facility verifications:", error);
+			return c.json({ error: "Failed to fetch facility verifications" }, 500);
 		}
 	})
 	// Get all users with role filter
