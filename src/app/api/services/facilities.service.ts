@@ -36,13 +36,13 @@ export class FacilityService {
 			}
 
 			// Validate file sizes
-			const maxSize = 5 * 1024 * 1024; // 5MB
+			const maxSize = 1 * 1024 * 1024; // 1MB
 			if (
 				data.ssmDocument.size > maxSize ||
 				data.clinicLicense.size > maxSize
 			) {
 				throw new HTTPException(400, {
-					message: "File size must be less than 5MB",
+					message: "File size must be less than 1MB",
 				});
 			}
 
@@ -113,9 +113,10 @@ export class FacilityService {
 			};
 		} catch (error) {
 			console.error("Error in facility.service.createFacility:", error);
-			throw new HTTPException(500, {
-				message: "Failed to create facility",
-			});
+			if (error instanceof HTTPException) {
+				throw error;
+			}
+			throw error;
 		}
 	}
 
