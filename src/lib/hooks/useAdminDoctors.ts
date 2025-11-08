@@ -23,9 +23,11 @@ export function useVerifiedDoctors(params?: UseVerifiedDoctorsParams) {
 				searchParams.offset = params.offset.toString();
 			}
 
-			const res = await client.api.v2.admin.doctors.verified.$get({
-				query: searchParams,
-			});
+			const res = await client.api.v2.admin.doctors.verifications.verified.$get(
+				{
+					query: searchParams,
+				},
+			);
 
 			if (!res.ok) {
 				throw new Error("Failed to fetch verified doctors");
@@ -38,9 +40,10 @@ export function useVerifiedDoctors(params?: UseVerifiedDoctorsParams) {
 
 export function usePendingVerifications() {
 	return useQuery({
-		queryKey: ["admin", "verifications", "pending"],
+		queryKey: ["admin", "doctors", "verifications", "pending"],
 		queryFn: async () => {
-			const res = await client.api.v2.admin.verifications.pending.$get();
+			const res =
+				await client.api.v2.admin.doctors.verifications.pending.$get();
 
 			if (!res.ok) {
 				throw new Error("Failed to fetch pending verifications");
@@ -62,7 +65,7 @@ export function useVerificationAction() {
 
 	return useMutation({
 		mutationFn: async (params: VerificationActionParams) => {
-			const res = await client.api.v2.admin.verifications.action.$post({
+			const res = await client.api.v2.admin.doctors.verifications.action.$post({
 				json: params,
 			});
 
@@ -76,7 +79,7 @@ export function useVerificationAction() {
 		onSuccess: () => {
 			// Invalidate pending verifications to refetch
 			queryClient.invalidateQueries({
-				queryKey: ["admin", "verifications", "pending"],
+				queryKey: ["admin", "doctors", "verifications", "pending"],
 			});
 			// Also invalidate verified doctors list
 			queryClient.invalidateQueries({

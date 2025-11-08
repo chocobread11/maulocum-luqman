@@ -27,7 +27,7 @@ import {
 	useVerificationAction,
 } from "@/lib/hooks/useAdminDoctors";
 
-function PendingVerificationsPage() {
+function DoctorVerificationsPage() {
 	const { data, isLoading, error } = usePendingVerifications();
 	const verificationAction = useVerificationAction();
 
@@ -288,4 +288,4 @@ function PendingVerificationsPage() {
 	);
 }
 
-export default PendingVerificationsPage;
+export default DoctorVerificationsPage;
