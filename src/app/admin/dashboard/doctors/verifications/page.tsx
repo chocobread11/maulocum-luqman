@@ -37,8 +37,8 @@ function DoctorVerificationsPage() {
 	const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
 	const [rejectionReason, setRejectionReason] = useState("");
 
-	const verifications = data?.verifications || [];
-	const count = data?.count || 0;
+	const verifications = data?.data?.verifications || [];
+	const count = data?.data?.count || 0;
 
 	const handleApprove = async (verificationId: string) => {
 		try {
