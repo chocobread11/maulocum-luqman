@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/table";
 import { backendApi } from "@/lib/rpc-client";
 
+export const dynamic = "force-dynamic";
+
 async function AdminFacilitiesPage() {
 	// Fetch facilities from admin API endpoint
 	const res = await backendApi.api.v2.admin.facilities.$get({
