@@ -93,34 +93,6 @@ const app = new Hono()
 		},
 	)
 
-	// Get single verification details
-	// @route GET /api/v2/admin/doctors/verifications/:verificationId
-	.get("/doctors/verifications/:verificationId", async (c) => {
-		const verificationId = c.req.param("verificationId");
-
-		try {
-			const verification =
-				await adminService.getDoctorsVerificationById(verificationId);
-
-			return c.json({
-				success: true,
-				message: "Verification fetched successfully",
-				data: { verification },
-			});
-		} catch (error) {
-			console.error("Error fetching verification:", error);
-			const httpError = error as HTTPException;
-			return c.json(
-				{
-					success: false,
-					message: httpError.message,
-					data: null,
-				},
-				httpError.status,
-			);
-		}
-	})
-
 	// Approve or reject verification
 	// @route POST /api/v2/admin/doctors/verifications/action
 	.post(
@@ -139,7 +111,7 @@ const app = new Hono()
 				return c.json({
 					success: true,
 					message: "Verification processed successfully",
-					data: result?.verification,
+					data: result?.doctorProfile,
 				});
 			} catch (error) {
 				console.error("Error processing verification:", error);
@@ -345,6 +317,35 @@ const app = new Hono()
 			}
 		},
 	)
+
+	// Get single verification details
+	// @route GET /api/v2/admin/doctors/verifications/:verificationId
+	.get("/doctors/verifications/:verificationId", async (c) => {
+		const verificationId = c.req.param("verificationId");
+
+		try {
+			const verification =
+				await adminService.getDoctorsVerificationById(verificationId);
+
+			return c.json({
+				success: true,
+				message: "Verification fetched successfully",
+				data: { verification },
+			});
+		} catch (error) {
+			console.error("Error fetching verification:", error);
+			const httpError = error as HTTPException;
+			return c.json(
+				{
+					success: false,
+					message: httpError.message,
+					data: null,
+				},
+				httpError.status,
+			);
+		}
+	})
+
 	// Update user role manually (admin override)
 	.patch(
 		"/users/:userId/role",
