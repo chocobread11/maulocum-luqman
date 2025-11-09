@@ -138,6 +138,7 @@ export class FacilityService {
 	}
 
 	// Get facility by ID
+	// Use for general facility information
 	async getFacilityById(id: string) {
 		return prisma.facility.findUnique({
 			where: { id },
@@ -173,7 +174,7 @@ export class FacilityService {
 	async getFacilities(query: FacilityQuery) {
 		const { ownerId, search, page, limit } = query;
 
-		const where: any = {};
+		const where: Prisma.FacilityWhereInput = {};
 
 		if (ownerId) where.ownerId = ownerId;
 		if (search) {
@@ -271,13 +272,46 @@ export class FacilityService {
 			where: { facilityId },
 		});
 	}
-	async getFacilityByOwnerId(ownerId: string) {
-		return prisma.facility.findFirst({
-			where: { ownerId },
-			include: {
-				facilityVerification: true,
-			},
-		});
+
+	// Get facility by owner ID for employer profile
+	async getUserFacilityProfile(userId: string) {
+		try {
+			const facility = await prisma.userFacilityProfile.findUnique({
+				where: {
+					userId,
+				},
+				include: {
+					user: true,
+					facility: {
+						include: {
+							facilityVerification: true,
+							contactInfo: true,
+						},
+					},
+				},
+			});
+
+			if (!facility) {
+				throw new HTTPException(404, {
+					message: "Facility not found",
+				});
+			}
+
+			if (
+				facility.facility.facilityVerification?.verificationStatus !==
+				"APPROVED"
+			) {
+				throw new HTTPException(403, {
+					message: "Facility not approved",
+				});
+			}
+
+			return facility;
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw error;
+		}
 	}
 }
 
