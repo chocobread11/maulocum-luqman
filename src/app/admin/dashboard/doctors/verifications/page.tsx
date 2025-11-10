@@ -86,6 +86,29 @@ function DoctorVerificationsPage() {
 		setRejectDialogOpen(true);
 	};
 
+	switch (error?.cause) {
+		case 404:
+			return (
+				<Card>
+					<CardContent className="pt-6">
+						<p className="text-muted-foreground text-center">
+							No verifications found.
+						</p>
+					</CardContent>
+				</Card>
+			);
+		case 500:
+			return (
+				<Card>
+					<CardContent className="pt-6">
+						<p className="text-muted-foreground text-center">
+							Failed to fetch verifications.
+						</p>
+					</CardContent>
+				</Card>
+			);
+	}
+
 	return (
 		<div className="px-6 w-full mx-auto">
 			<div className="mb-6">

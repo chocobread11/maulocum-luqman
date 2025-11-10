@@ -31,7 +31,9 @@ export function useVerifiedDoctors(params?: UseVerifiedDoctorsParams) {
 
 			if (!res.ok) {
 				const { message } = await res.json();
-				throw new Error(message || "Failed to fetch verified doctors");
+				throw new Error(message, {
+					cause: res.status,
+				});
 			}
 
 			return res.json();
@@ -48,7 +50,9 @@ export function usePendingVerifications() {
 
 			if (!res.ok) {
 				const { message } = await res.json();
-				throw new Error(message || "Failed to fetch pending verifications");
+				throw new Error(message, {
+					cause: res.status,
+				});
 			}
 
 			return res.json();
