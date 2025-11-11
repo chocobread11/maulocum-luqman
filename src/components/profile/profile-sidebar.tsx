@@ -120,7 +120,7 @@ export function ProfileSidebar() {
 
 	const jobLinks = [
 		{
-			href: "profile/history",
+			href: "/profile/history",
 			icon: <History className="h-4 w-4" />,
 			label: "History",
 		},
