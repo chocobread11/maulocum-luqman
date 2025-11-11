@@ -36,13 +36,13 @@ export class FacilityService {
 			}
 
 			// Validate file sizes
-			const maxSize = 5 * 1024 * 1024; // 5MB
+			const maxSize = 1 * 1024 * 1024; // 1MB
 			if (
 				data.ssmDocument.size > maxSize ||
 				data.clinicLicense.size > maxSize
 			) {
 				throw new HTTPException(400, {
-					message: "File size must be less than 5MB",
+					message: "File size must be less than 1MB",
 				});
 			}
 
@@ -113,6 +113,9 @@ export class FacilityService {
 			};
 		} catch (error) {
 			console.error("Error in facility.service.createFacility:", error);
+			if (error instanceof HTTPException) {
+				throw error;
+			}
 			throw new HTTPException(500, {
 				message: "Failed to create facility",
 			});
@@ -137,6 +140,7 @@ export class FacilityService {
 	}
 
 	// Get facility by ID
+	// Use for general facility information
 	async getFacilityById(id: string) {
 		return prisma.facility.findUnique({
 			where: { id },
@@ -170,113 +174,201 @@ export class FacilityService {
 
 	// Get all facilities with filters and pagination
 	async getFacilities(query: FacilityQuery) {
-		const { ownerId, search, page, limit } = query;
+		try {
+			const { ownerId, search, page, limit } = query;
 
-		const where: any = {};
+			const where: Prisma.FacilityWhereInput = {};
 
-		if (ownerId) where.ownerId = ownerId;
-		if (search) {
-			where.OR = [
-				{ name: { contains: search, mode: "insensitive" } },
-				{ address: { contains: search, mode: "insensitive" } },
-				{ description: { contains: search, mode: "insensitive" } },
-			];
-		}
+			if (ownerId) where.ownerId = ownerId;
+			if (search) {
+				where.OR = [
+					{ name: { contains: search, mode: "insensitive" } },
+					{ address: { contains: search, mode: "insensitive" } },
+					{ description: { contains: search, mode: "insensitive" } },
+				];
+			}
 
-		const skip = (page - 1) * limit;
+			const skip = (page - 1) * limit;
 
-		const [facilities, total] = await Promise.all([
-			prisma.facility.findMany({
-				where,
-				skip,
-				take: limit,
-				orderBy: { createdAt: "desc" },
-				include: {
-					owner: {
-						select: {
-							id: true,
-							name: true,
+			const [facilities, total] = await Promise.all([
+				prisma.facility.findMany({
+					where,
+					skip,
+					take: limit,
+					orderBy: { createdAt: "desc" },
+					include: {
+						owner: {
+							select: {
+								id: true,
+								name: true,
+							},
+						},
+						_count: {
+							select: {
+								jobs: true,
+								reviews: true,
+							},
 						},
 					},
-					_count: {
-						select: {
-							jobs: true,
-							reviews: true,
-						},
-					},
+				}),
+				prisma.facility.count({ where }),
+			]);
+
+			if (!facilities.length || !total) {
+				throw new HTTPException(404, {
+					message: "Facilities not found",
+				});
+			}
+
+			return {
+				facilities,
+				pagination: {
+					total,
+					page,
+					limit,
+					totalPages: Math.ceil(total / limit),
 				},
-			}),
-			prisma.facility.count({ where }),
-		]);
-
-		return {
-			facilities,
-			pagination: {
-				total,
-				page,
-				limit,
-				totalPages: Math.ceil(total / limit),
-			},
-		};
+			};
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, { message: "Failed to fetch facilities" });
+		}
 	}
 
 	// Update facility
 	async updateFacility(id: string, data: FacilityRegistrationApiInput) {
-		return prisma.facility.update({
-			where: { id },
-			data: {
-				...data,
-				name: data.companyName,
-				address: data.address,
-				contactEmail: data.companyEmail,
-				contactPhone: data.companyPhone,
-				updatedAt: new Date(),
-			},
-		});
+		try {
+			return prisma.facility.update({
+				where: { id },
+				data: {
+					...data,
+					name: data.companyName,
+					address: data.address,
+					contactEmail: data.companyEmail,
+					contactPhone: data.companyPhone,
+					updatedAt: new Date(),
+				},
+			});
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, { message: "Failed to update facility" });
+		}
 	}
 
 	// Delete facility
 	async deleteFacility(id: string) {
-		return prisma.facility.delete({
-			where: { id },
-		});
+		try {
+			return prisma.facility.delete({
+				where: { id },
+			});
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, { message: "Failed to delete facility" });
+		}
 	}
 
 	// Add contact info to facility
 	async addContactInfo(data: CreateContactInfoInput) {
-		return prisma.contactInfo.create({
-			data,
-		});
+		try {
+			return prisma.contactInfo.create({
+				data,
+			});
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, { message: "Failed to add contact info" });
+		}
 	}
 
 	// Add review to facility
 	async addReview(data: CreateReviewInput) {
-		return prisma.review.create({
-			data,
-		});
+		try {
+			return prisma.review.create({
+				data,
+			});
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, { message: "Failed to add review" });
+		}
 	}
 
 	// Get facility reviews
 	async getFacilityReviews(facilityId: string) {
-		return prisma.review.findMany({
-			where: { facilityId },
-			orderBy: { createdAt: "desc" },
-		});
+		try {
+			return prisma.review.findMany({
+				where: { facilityId },
+				orderBy: { createdAt: "desc" },
+			});
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, {
+				message: "Failed to get facility reviews",
+			});
+		}
 	}
 
 	// Get facility contact info
 	async getFacilityContactInfo(facilityId: string) {
-		return prisma.contactInfo.findMany({
-			where: { facilityId },
-		});
+		try {
+			return prisma.contactInfo.findMany({
+				where: { facilityId },
+			});
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, {
+				message: "Failed to get facility contact info",
+			});
+		}
 	}
-	async getFacilityByOwnerId(ownerId: string) {
-		return prisma.facility.findFirst({
-			where: { ownerId },
-			include: {
-				facilityVerification: true,
-			},
-		});
+
+	// Get facility by owner ID for employer profile
+	async getUserFacilityProfile(userId: string) {
+		try {
+			const facility = await prisma.userFacilityProfile.findUnique({
+				where: {
+					userId,
+				},
+				include: {
+					user: true,
+					facility: {
+						include: {
+							facilityVerification: true,
+							contactInfo: true,
+							reviews: true,
+						},
+					},
+				},
+			});
+
+			if (!facility) {
+				throw new HTTPException(404, {
+					message: "Facility not found",
+				});
+			}
+
+			if (
+				facility.facility.facilityVerification?.verificationStatus !==
+				"APPROVED"
+			) {
+				throw new HTTPException(403, {
+					message: "Facility not approved",
+				});
+			}
+
+			return facility;
+		} catch (error) {
+			console.error(error);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, {
+				message: "Failed to get user facility profile",
+			});
+		}
 	}
 }
 
