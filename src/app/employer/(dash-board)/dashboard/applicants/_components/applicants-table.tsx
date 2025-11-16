@@ -85,7 +85,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/lib/hooks/use-mobile";
 
 export const schema = z.object({
 	id: z.number(),

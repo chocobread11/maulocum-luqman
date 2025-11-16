@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { client } from "@/lib/rpc-client";
+import { client } from "@/lib/rpc";
 
 export function useFacilityVerificationAction() {
 	const queryClient = useQueryClient();

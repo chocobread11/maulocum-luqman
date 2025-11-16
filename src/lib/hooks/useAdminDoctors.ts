@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { client } from "@/lib/rpc-client";
+import { client } from "@/lib/rpc";
 
 interface UseVerifiedDoctorsParams {
 	search?: string;

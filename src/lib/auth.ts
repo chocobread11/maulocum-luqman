@@ -1,10 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP, magicLink, phoneNumber } from "better-auth/plugins";
+import { prisma } from "./prisma";
 // If your Prisma file is located elsewhere, you can change the path
-import { PrismaClient } from "../../prisma/generated/prisma/client";
 
-const prisma = new PrismaClient();
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
 	basePath: "/api/v2/auth",

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { JobPostFormValues } from "@/app/api/types/jobs.types";
-import { client } from "@/lib/rpc-client";
+import { client } from "@/lib/rpc";
 
 /**
  * Hook to post a job for employer's facility

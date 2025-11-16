@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import type { JobResponse } from "@/lib/rpc-client";
+import type { JobResponse } from "@/lib/rpc";
 
 function JobList({ jobListings: data }: { jobListings: JobResponse }) {
 	const jobListings = data.data;

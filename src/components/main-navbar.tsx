@@ -63,7 +63,7 @@ interface Navbar1Props {
 	};
 }
 
-const Navbar1 = ({
+const MainNavbar = ({
 	logo = {
 		url: "/",
 		src: "https://www.shadcnblocks.com/images/block/block-1.svg",
@@ -384,4 +384,4 @@ const renderMobileMenuItem = (item: MenuItem) => {
 	);
 };
 
-export { Navbar1 };
+export { MainNavbar };

@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useFacilityVerificationAction } from "@/lib/hooks/useAdminFacilities";
-import { client } from "@/lib/rpc-client";
+import { client } from "@/lib/rpc";
 
 export default function FacilitiesVerificationsPage() {
 	const [selectedVerification, setSelectedVerification] = useState<

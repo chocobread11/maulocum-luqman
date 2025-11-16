@@ -15,7 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { backendApi } from "@/lib/rpc-client";
+import { backendApi } from "@/lib/rpc";
 
 async function EmployerProfilePage() {
 	const headersList = await headers();

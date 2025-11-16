@@ -18,7 +18,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { backendApi } from "@/lib/rpc-client";
+import { backendApi } from "@/lib/rpc";
 
 export const dynamic = "force-dynamic";
 
