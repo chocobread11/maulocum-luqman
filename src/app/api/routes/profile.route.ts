@@ -6,7 +6,7 @@ import {
 	doctorVerificationApiSchema,
 	doctorVerificationUpdateSchema,
 } from "@/lib/schemas/doctor-verification.schema";
-import { UserRole } from "../../../../prisma/generated/prisma/enums";
+import { UserRole } from "../../../../prisma/generated/prisma";
 import { profileServices } from "../services/profile.services";
 
 const app = new Hono()
