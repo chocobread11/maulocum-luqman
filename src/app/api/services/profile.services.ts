@@ -11,7 +11,7 @@ import type {
 	DoctorVerificationApiData,
 	doctorVerificationUpdateSchema,
 } from "@/lib/schemas/doctor-verification.schema";
-import type { UserRole } from "../../../../prisma/generated/prisma";
+import type { UserRole } from "../../../../prisma/generated/prisma/enums";
 
 class ProfileServices {
 	async getUserProfile(userId: string) {

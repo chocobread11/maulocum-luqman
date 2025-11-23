@@ -69,7 +69,7 @@ This command will:
 Populate your database with test data (optional but recommended for development):
 
 ```bash
-bun run seed
+bunx prisma db seed
 ```
 
 This will create:
@@ -105,7 +105,7 @@ bunx prisma studio
 bunx prisma migrate reset
 
 # Seed database with sample data
-bun run seed
+bunx prisma db seed
 ```
 
 > [!WARNING]  
