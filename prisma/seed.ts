@@ -223,6 +223,179 @@ async function main() {
 		console.log(`✅ Created job: ${job.title}`);
 	}
 
+	// Create doctor users with profiles and verifications
+	const doctors = [
+		{
+			user: {
+				id: "default_doctor_001",
+				name: "Dr. Sarah Lee",
+				email: "sarah.lee@maulocum.com",
+				emailVerified: true,
+				roles: [UserRole.DOCTOR],
+				phoneNumber: "+60123456001",
+				phoneNumberVerified: true,
+				location: "Kuala Lumpur, Malaysia",
+			},
+			verification: {
+				fullName: "Dr. Sarah Lee Mei Ling",
+				phoneNumber: "+60123456001",
+				location: "Kuala Lumpur, Malaysia",
+				specialty: "General Practice",
+				yearsOfExperience: 8,
+				provisionalId: "PROV-2016-001234",
+				fullId: "FULL-2018-001234",
+				apcNumber: "APC-2024-001234",
+				apcDocumentUrl: "https://example.com/documents/apc-sarah-lee.pdf",
+				verificationStatus: VerificationStatus.APPROVED,
+				submittedAt: new Date("2024-01-15"),
+				reviewedAt: new Date("2024-01-20"),
+			},
+		},
+		{
+			user: {
+				id: "default_doctor_002",
+				name: "Dr. Ahmad Razak",
+				email: "ahmad.razak@maulocum.com",
+				emailVerified: true,
+				roles: [UserRole.DOCTOR],
+				phoneNumber: "+60123456002",
+				phoneNumberVerified: true,
+				location: "Petaling Jaya, Malaysia",
+			},
+			verification: {
+				fullName: "Dr. Ahmad Razak bin Abdullah",
+				phoneNumber: "+60123456002",
+				location: "Petaling Jaya, Malaysia",
+				specialty: "Pediatrics",
+				yearsOfExperience: 12,
+				provisionalId: "PROV-2012-005678",
+				fullId: "FULL-2014-005678",
+				apcNumber: "APC-2024-005678",
+				apcDocumentUrl: "https://example.com/documents/apc-ahmad-razak.pdf",
+				verificationStatus: VerificationStatus.APPROVED,
+				submittedAt: new Date("2024-02-10"),
+				reviewedAt: new Date("2024-02-15"),
+			},
+		},
+		{
+			user: {
+				id: "default_doctor_003",
+				name: "Dr. Priya Sharma",
+				email: "priya.sharma@maulocum.com",
+				emailVerified: true,
+				roles: [UserRole.DOCTOR],
+				phoneNumber: "+60123456003",
+				phoneNumberVerified: true,
+				location: "Subang Jaya, Malaysia",
+			},
+			verification: {
+				fullName: "Dr. Priya Sharma",
+				phoneNumber: "+60123456003",
+				location: "Subang Jaya, Malaysia",
+				specialty: "Emergency Medicine",
+				yearsOfExperience: 6,
+				provisionalId: "PROV-2018-009876",
+				fullId: "FULL-2020-009876",
+				apcNumber: "APC-2024-009876",
+				apcDocumentUrl: "https://example.com/documents/apc-priya-sharma.pdf",
+				verificationStatus: VerificationStatus.PENDING,
+				submittedAt: new Date("2024-11-01"),
+				reviewedAt: null,
+			},
+		},
+		{
+			user: {
+				id: "default_doctor_004",
+				name: "Dr. Tan Wei Ming",
+				email: "tan.weiming@maulocum.com",
+				emailVerified: true,
+				roles: [UserRole.DOCTOR],
+				phoneNumber: "+60123456004",
+				phoneNumberVerified: true,
+				location: "Shah Alam, Malaysia",
+			},
+			verification: {
+				fullName: "Dr. Tan Wei Ming",
+				phoneNumber: "+60123456004",
+				location: "Shah Alam, Malaysia",
+				specialty: "Dermatology",
+				yearsOfExperience: 10,
+				provisionalId: "PROV-2014-002468",
+				fullId: "FULL-2016-002468",
+				apcNumber: "APC-2024-002468",
+				apcDocumentUrl: "https://example.com/documents/apc-tan-weiming.pdf",
+				verificationStatus: VerificationStatus.REJECTED,
+				rejectionReason: "APC document expired. Please upload a valid APC.",
+				allowAppeal: true,
+				submittedAt: new Date("2024-10-15"),
+				reviewedAt: new Date("2024-10-20"),
+			},
+		},
+		{
+			user: {
+				id: "default_doctor_005",
+				name: "Dr. Nurul Aisyah",
+				email: "nurul.aisyah@maulocum.com",
+				emailVerified: true,
+				roles: [UserRole.DOCTOR],
+				phoneNumber: "+60123456005",
+				phoneNumberVerified: true,
+				location: "Ampang, Malaysia",
+			},
+			verification: {
+				fullName: "Dr. Nurul Aisyah binti Hassan",
+				phoneNumber: "+60123456005",
+				location: "Ampang, Malaysia",
+				specialty: "Internal Medicine",
+				yearsOfExperience: 15,
+				provisionalId: "PROV-2009-001357",
+				fullId: "FULL-2011-001357",
+				apcNumber: "APC-2024-001357",
+				apcDocumentUrl: "https://example.com/documents/apc-nurul-aisyah.pdf",
+				verificationStatus: VerificationStatus.APPROVED,
+				submittedAt: new Date("2024-01-05"),
+				reviewedAt: new Date("2024-01-10"),
+			},
+		},
+	];
+
+	let doctorCount = 0;
+	let verificationCount = 0;
+
+	for (const doctorData of doctors) {
+		// Create or update doctor user
+		const doctor = await prisma.user.upsert({
+			where: { email: doctorData.user.email },
+			update: {},
+			create: doctorData.user,
+		});
+		doctorCount++;
+
+		// Create doctor profile
+		const doctorProfile = await prisma.doctorProfile.upsert({
+			where: { userId: doctor.id },
+			update: {},
+			create: {
+				userId: doctor.id,
+			},
+		});
+
+		// Create doctor verification
+		await prisma.doctorVerification.upsert({
+			where: { doctorProfileId: doctorProfile.id },
+			update: {
+				...doctorData.verification,
+			},
+			create: {
+				doctorProfileId: doctorProfile.id,
+				...doctorData.verification,
+			},
+		});
+		verificationCount++;
+
+		console.log(`✅ Created doctor: ${doctor.name} (${doctorData.verification.verificationStatus})`);
+	}
+
 	console.log("\n🎉 Database seeding completed successfully!");
 	console.log("\n📊 Summary:");
 	console.log(`   - 1 Clinic Owner created`);
@@ -231,6 +404,11 @@ async function main() {
 	console.log(`   - 1 Facility Verification created`);
 	console.log(`   - 1 Contact Info created`);
 	console.log(`   - 5 Jobs created`);
+	console.log(`   - ${doctorCount} Doctors created`);
+	console.log(`   - ${verificationCount} Doctor Verifications created`);
+	console.log(`     • ${doctors.filter(d => d.verification.verificationStatus === VerificationStatus.APPROVED).length} Approved`);
+	console.log(`     • ${doctors.filter(d => d.verification.verificationStatus === VerificationStatus.PENDING).length} Pending`);
+	console.log(`     • ${doctors.filter(d => d.verification.verificationStatus === VerificationStatus.REJECTED).length} Rejected`);
 }
 
 main()
