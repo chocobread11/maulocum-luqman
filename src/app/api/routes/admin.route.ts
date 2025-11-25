@@ -10,6 +10,7 @@ const verificationActionSchema = z.object({
 	verificationId: z.string(),
 	action: z.enum(["APPROVE", "REJECT"]),
 	rejectionReason: z.string().optional(),
+	allowAppeal: z.boolean().default(true),
 });
 
 // Schema for facility verification action
@@ -99,13 +100,15 @@ const app = new Hono()
 		"/doctors/verifications/action",
 		zValidator("json", verificationActionSchema),
 		async (c) => {
-			const { verificationId, action, rejectionReason } = c.req.valid("json");
+			const { verificationId, action, rejectionReason, allowAppeal } =
+				c.req.valid("json");
 
 			try {
 				const result = await adminService.createDoctorVerificationAction({
 					doctorId: verificationId,
 					action,
 					rejectionReason,
+					allowAppeal,
 				});
 
 				return c.json({

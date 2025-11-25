@@ -21,6 +21,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
 	usePendingVerifications,
@@ -36,6 +37,7 @@ function DoctorVerificationsPage() {
 	>(null);
 	const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
 	const [rejectionReason, setRejectionReason] = useState("");
+	const [allowAppeal, setAllowAppeal] = useState(true);
 
 	const verifications = data?.data?.verifications || [];
 	const count = data?.data?.count || 0;
@@ -67,10 +69,12 @@ function DoctorVerificationsPage() {
 				verificationId: selectedVerification,
 				action: "REJECT",
 				rejectionReason: rejectionReason.trim(),
+				allowAppeal,
 			});
 			toast.success("Verification rejected");
 			setRejectDialogOpen(false);
 			setRejectionReason("");
+			setAllowAppeal(true);
 			setSelectedVerification(null);
 		} catch (error) {
 			toast.error(
@@ -286,6 +290,19 @@ function DoctorVerificationsPage() {
 								rows={4}
 							/>
 						</div>
+						<div className="flex items-center justify-between space-x-2">
+							<div className="space-y-0.5">
+								<Label htmlFor="allow-appeal">Allow Appeal</Label>
+								<p className="text-sm text-muted-foreground">
+									Allow the doctor to resubmit their verification
+								</p>
+							</div>
+							<Switch
+								id="allow-appeal"
+								checked={allowAppeal}
+								onCheckedChange={setAllowAppeal}
+							/>
+						</div>
 					</div>
 					<DialogFooter>
 						<Button
@@ -293,6 +310,7 @@ function DoctorVerificationsPage() {
 							onClick={() => {
 								setRejectDialogOpen(false);
 								setRejectionReason("");
+								setAllowAppeal(true);
 							}}
 						>
 							Cancel

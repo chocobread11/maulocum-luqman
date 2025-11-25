@@ -66,6 +66,7 @@ interface VerificationActionParams {
 	verificationId: string;
 	action: "APPROVE" | "REJECT";
 	rejectionReason?: string;
+	allowAppeal?: boolean;
 }
 
 export function useVerificationAction() {

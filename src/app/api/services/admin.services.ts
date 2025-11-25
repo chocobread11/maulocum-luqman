@@ -300,10 +300,12 @@ class AdminService {
 		doctorId,
 		action,
 		rejectionReason,
+		allowAppeal = true,
 	}: {
 		doctorId: string;
 		action: "APPROVE" | "REJECT";
 		rejectionReason?: string;
+		allowAppeal?: boolean;
 	}) {
 		try {
 			const doctorProfile = await this.getDoctorsVerificationById(doctorId);
@@ -352,6 +354,7 @@ class AdminService {
 					data: {
 						verificationStatus: "REJECTED",
 						rejectionReason,
+						allowAppeal,
 						reviewedAt: new Date(),
 					},
 				});
