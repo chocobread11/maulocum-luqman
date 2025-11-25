@@ -1,10 +1,18 @@
 "use client";
 
+import { useQueryState } from "nuqs";
+import { useDebounce } from "use-debounce";
 import { useDoctorVerifications } from "@/lib/hooks/useAdminDoctors";
+import { DoctorsSearch } from "./doctors-search";
 import { DoctorsTable } from "./doctors-table";
 
 export function DoctorsContent() {
-	const { data, isLoading, error } = useDoctorVerifications();
+	const [search] = useQueryState("search");
+	const [debouncedSearch] = useDebounce(search, 1000);
+
+	const { data, isLoading, error } = useDoctorVerifications({
+		search: debouncedSearch || undefined,
+	});
 
 	const verifications = data?.data?.verifications || [];
 	const total = data?.data?.total || 0;
@@ -18,6 +26,10 @@ export function DoctorsContent() {
 						Total: {total} verification{total !== 1 ? "s" : ""}
 					</p>
 				</div>
+			</div>
+
+			<div className="mb-4">
+				<DoctorsSearch />
 			</div>
 
 			{isLoading ? (

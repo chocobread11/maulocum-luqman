@@ -121,17 +121,38 @@ class AdminService {
 
 	async getDoctorVerifications({
 		status,
+		search,
 		limit,
 		offset,
 	}: {
 		status?: "PENDING" | "APPROVED" | "REJECTED";
+		search?: string;
 		limit: number;
 		offset: number;
 	}) {
 		try {
-			const where: Prisma.DoctorVerificationWhereInput = status
-				? { verificationStatus: status }
-				: {};
+			const where: Prisma.DoctorVerificationWhereInput = {};
+
+			if (status) {
+				where.verificationStatus = status;
+			}
+
+			if (search) {
+				where.OR = [
+					{ fullName: { contains: search, mode: "insensitive" } },
+					{
+						doctorProfile: {
+							user: {
+								email: { contains: search, mode: "insensitive" },
+							},
+						},
+					},
+					{ phoneNumber: { contains: search, mode: "insensitive" } },
+					{ provisionalId: { contains: search, mode: "insensitive" } },
+					{ fullId: { contains: search, mode: "insensitive" } },
+					{ apcNumber: { contains: search, mode: "insensitive" } },
+				];
+			}
 
 			const [verifications, total] = await Promise.all([
 				prisma.doctorVerification.findMany({

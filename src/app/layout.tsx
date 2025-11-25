@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
@@ -24,7 +25,9 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={`${poppins.variable} font-sans antialiased`}>
 				<Toaster />
-				<ReactQueryProvider>{children}</ReactQueryProvider>
+				<ReactQueryProvider>
+					<NuqsAdapter>{children}</NuqsAdapter>
+				</ReactQueryProvider>
 			</body>
 		</html>
 	);

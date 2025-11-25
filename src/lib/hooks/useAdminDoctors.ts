@@ -3,6 +3,7 @@ import { client } from "@/lib/rpc";
 
 interface UseDoctorVerificationsParams {
 	status?: "PENDING" | "APPROVED" | "REJECTED";
+	search?: string;
 	limit?: number;
 	offset?: number;
 }
@@ -15,6 +16,9 @@ export function useDoctorVerifications(params?: UseDoctorVerificationsParams) {
 
 			if (params?.status) {
 				searchParams.status = params.status;
+			}
+			if (params?.search) {
+				searchParams.search = params.search;
 			}
 			if (params?.limit) {
 				searchParams.limit = params.limit.toString();

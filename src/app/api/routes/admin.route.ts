@@ -54,16 +54,18 @@ const app = new Hono()
 			"query",
 			z.object({
 				status: z.enum(["PENDING", "APPROVED", "REJECTED"]).optional(),
+				search: z.string().optional(),
 				limit: z.coerce.number().int().min(1).max(100).default(10),
 				offset: z.coerce.number().int().min(0).default(0),
 			}),
 		),
 		async (c) => {
-			const { status, limit, offset } = c.req.valid("query");
+			const { status, search, limit, offset } = c.req.valid("query");
 
 			try {
 				const verifications = await adminService.getDoctorVerifications({
 					status,
+					search,
 					limit,
 					offset,
 				});
