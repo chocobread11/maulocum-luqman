@@ -331,6 +331,13 @@ class AdminService {
 						roles: hasEmployer ? { push: "DOCTOR" } : { set: ["DOCTOR"] },
 					},
 				});
+
+				return {
+					doctorProfile: {
+						...doctorProfile,
+						verificationStatus: "APPROVED",
+					},
+				};
 			} else {
 				// REJECT
 				if (!rejectionReason) {
