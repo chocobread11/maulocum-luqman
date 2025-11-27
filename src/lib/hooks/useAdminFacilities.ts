@@ -9,6 +9,7 @@ export function useFacilityVerificationAction() {
 			verificationId: string;
 			action: "APPROVE" | "REJECT";
 			rejectionReason?: string;
+			allowAppeal?: boolean;
 		}) => {
 			const response =
 				await client.api.v2.admin.facilities.verifications.action.$post({

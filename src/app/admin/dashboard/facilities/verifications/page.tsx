@@ -24,6 +24,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import {
 	Table,
 	TableBody,
@@ -42,6 +43,7 @@ export default function FacilitiesVerificationsPage() {
 	>(null);
 	const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
 	const [rejectionReason, setRejectionReason] = useState("");
+	const [allowAppeal, setAllowAppeal] = useState(true);
 
 	const verificationAction = useFacilityVerificationAction();
 	const { data, isLoading, error } = useQuery({
@@ -87,10 +89,12 @@ export default function FacilitiesVerificationsPage() {
 				verificationId: selectedVerification,
 				action: "REJECT",
 				rejectionReason: rejectionReason.trim(),
+				allowAppeal,
 			});
 			toast.success("Facility verification rejected");
 			setRejectDialogOpen(false);
 			setRejectionReason("");
+			setAllowAppeal(true);
 			setSelectedVerification(null);
 		} catch (error) {
 			toast.error(
@@ -299,6 +303,19 @@ export default function FacilitiesVerificationsPage() {
 								value={rejectionReason}
 								onChange={(e) => setRejectionReason(e.target.value)}
 								rows={4}
+							/>
+						</div>
+						<div className="flex items-center justify-between">
+							<div className="space-y-0.5">
+								<Label htmlFor="allow-appeal">Allow Appeal</Label>
+								<p className="text-sm text-muted-foreground">
+									Allow the facility to resubmit their verification
+								</p>
+							</div>
+							<Switch
+								id="allow-appeal"
+								checked={allowAppeal}
+								onCheckedChange={setAllowAppeal}
 							/>
 						</div>
 					</div>

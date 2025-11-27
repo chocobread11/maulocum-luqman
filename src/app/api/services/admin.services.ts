@@ -376,10 +376,12 @@ class AdminService {
 		verificationId,
 		action,
 		rejectionReason,
+		allowAppeal = true,
 	}: {
 		verificationId: string;
 		action: "APPROVE" | "REJECT";
 		rejectionReason?: string;
+		allowAppeal?: boolean;
 	}) {
 		try {
 			// Validate rejection reason if action is REJECT
@@ -429,6 +431,7 @@ class AdminService {
 							verificationStatus:
 								action === "APPROVE" ? "APPROVED" : "REJECTED",
 							rejectionReason: action === "REJECT" ? rejectionReason : null,
+							allowAppeal: action === "REJECT" ? allowAppeal : false,
 							reviewedAt: new Date(),
 							updatedAt: new Date(),
 						},

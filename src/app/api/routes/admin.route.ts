@@ -18,6 +18,7 @@ const facilityVerificationActionSchema = z.object({
 	verificationId: z.string(),
 	action: z.enum(["APPROVE", "REJECT"]),
 	rejectionReason: z.string().optional(),
+	allowAppeal: z.boolean().default(true),
 });
 
 const app = new Hono()
@@ -188,7 +189,8 @@ const app = new Hono()
 		"/facilities/verifications/action",
 		zValidator("json", facilityVerificationActionSchema),
 		async (c) => {
-			const { verificationId, action, rejectionReason } = c.req.valid("json");
+			const { verificationId, action, rejectionReason, allowAppeal } =
+				c.req.valid("json");
 
 			try {
 				const updatedVerification =
@@ -196,6 +198,7 @@ const app = new Hono()
 						verificationId,
 						action,
 						rejectionReason,
+						allowAppeal,
 					});
 
 				return c.json({
