@@ -100,6 +100,45 @@ export type FacilityRegistrationApiInput = z.infer<
 	typeof facilityRegistrationApiSchema
 >;
 
+// Schema for editing facility verification (only allowed for PENDING or REJECTED with allowAppeal)
+// Client-side schema (for form validation with optional files)
+export const facilityVerificationEditSchema = z.object({
+	companyName: z
+		.string()
+		.min(2, "Company name must be at least 2 characters")
+		.max(100, "Company name must not exceed 100 characters"),
+	address: z
+		.string()
+		.min(10, "Address must be at least 10 characters")
+		.max(200, "Address must not exceed 200 characters"),
+	companyEmail: z.string().email("Invalid email address").toLowerCase(),
+	companyPhone: z
+		.string()
+		.min(10, "Phone number must be at least 10 characters")
+		.max(15, "Phone number must not exceed 15 characters")
+		.regex(/^[0-9+\-\s()]+$/, "Invalid phone number format"),
+	ssmDocument: z.instanceof(File).optional(),
+	clinicLicense: z.instanceof(File).optional(),
+});
+
+export type FacilityVerificationEditInput = z.infer<
+	typeof facilityVerificationEditSchema
+>;
+
+// API schema for facility verification edit (form data)
+export const facilityVerificationEditApiSchema = z.object({
+	companyName: z.string().min(2).max(100),
+	address: z.string().min(10).max(200),
+	companyEmail: z.string().email().toLowerCase(),
+	companyPhone: z.string().min(10).max(15),
+	ssmDocument: z.instanceof(File).optional(),
+	clinicLicense: z.instanceof(File).optional(),
+});
+
+export type FacilityVerificationEditApiInput = z.infer<
+	typeof facilityVerificationEditApiSchema
+>;
+
 export type FacilityQuery = z.infer<typeof facilityQuerySchema>;
 export type ContactInfo = z.infer<typeof contactInfoSchema>;
 export type CreateContactInfoInput = z.infer<typeof createContactInfoSchema>;

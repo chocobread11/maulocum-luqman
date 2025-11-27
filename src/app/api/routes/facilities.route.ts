@@ -2,13 +2,14 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
-import { requireActiveEmployer } from "../lib/api-utils";
+import { requireActiveEmployer, requireAuth } from "../lib/api-utils";
 import { facilityService } from "../services/facilities.service";
 import {
 	createContactInfoSchema,
 	createReviewSchema,
 	facilityQuerySchema,
 	facilityRegistrationApiSchema,
+	facilityVerificationEditApiSchema,
 } from "../types/facilities.types";
 import type { AppVariables } from "../types/hono.types";
 import { jobPostInputSchema, jobPostSchema } from "../types/jobs.types";
@@ -50,10 +51,10 @@ const app = new Hono<{ Variables: AppVariables }>()
 	.get("/my-facility", requireActiveEmployer, async (c) => {
 		try {
 			// Facility profile is already fetched and validated by middleware
-			const facilityProfile = c.get("facilityProfile");
+			const staffProfile = c.get("staffProfile");
 
 			// Omit sensitive owner data from response
-			const { user, facility, ...facilityData } = facilityProfile;
+			const { user, facility, ...facilityData } = staffProfile;
 			return c.json(
 				{
 					success: true,
@@ -90,6 +91,84 @@ const app = new Hono<{ Variables: AppVariables }>()
 	})
 
 	/**
+	 * GET /api/v2/facilities/verification-status
+	 * Get current user's facility verification status with editable flag
+	 * @PROTECTED route
+	 */
+	.get("/verification-status", requireAuth, async (c) => {
+		try {
+			const userId = c.get("user").id;
+			const verification =
+				await facilityService.getFacilityVerificationStatus(userId);
+
+			if (!verification) {
+				return c.json(
+					{
+						success: false,
+						message: "Facility verification not found",
+						data: null,
+					},
+					404,
+				);
+			}
+
+			return c.json({
+				success: true,
+				message: "Verification status fetched successfully",
+				data: verification,
+			});
+		} catch (error) {
+			console.error(error);
+			const httpError = error as HTTPException;
+			return c.json(
+				{
+					success: false,
+					message: httpError.message,
+					data: null,
+				},
+				httpError.status,
+			);
+		}
+	})
+
+	/**
+	 * PATCH /api/v2/facilities/verification
+	 * Update facility verification details with optional file uploads
+	 * (only for PENDING or REJECTED with allowAppeal)
+	 * @PROTECTED route
+	 */
+	.patch(
+		"/verification",
+		requireAuth,
+		zValidator("form", facilityVerificationEditApiSchema),
+		async (c) => {
+			try {
+				const data = c.req.valid("form");
+				const userId = c.get("user").id;
+
+				await facilityService.updateFacilityVerificationDetails(userId, data);
+
+				return c.json({
+					success: true,
+					message: "Verification updated successfully",
+					data: null,
+				});
+			} catch (error) {
+				console.error(error);
+				const httpError = error as HTTPException;
+				return c.json(
+					{
+						success: false,
+						message: httpError.message,
+						data: null,
+					},
+					httpError.status,
+				);
+			}
+		},
+	)
+
+	/**
 	 * POST /api/v2/facilities/jobs
 	 * Post a job for employer's facility
 	 * @PROTECTED route
@@ -115,11 +194,11 @@ const app = new Hono<{ Variables: AppVariables }>()
 			}
 
 			// Get facility data from middleware context
-			const facilityProfile = c.get("facilityProfile");
+			const staffProfile = c.get("staffProfile");
 			await facilityService.postJob(
 				validatedData.data,
-				facilityProfile.facilityId,
-				facilityProfile.id,
+				staffProfile.facilityId,
+				staffProfile.id,
 			);
 			return c.json(
 				{
@@ -148,9 +227,9 @@ const app = new Hono<{ Variables: AppVariables }>()
 	 */
 	.get("/jobs", requireActiveEmployer, async (c) => {
 		try {
-			const facilityProfile = c.get("facilityProfile");
+			const staffProfile = c.get("staffProfile");
 			const jobs = await facilityService.getMyFacilityJobs(
-				facilityProfile.facilityId,
+				staffProfile.facilityId,
 			);
 			return c.json({
 				success: true,
@@ -178,12 +257,12 @@ const app = new Hono<{ Variables: AppVariables }>()
 		async (c) => {
 			try {
 				const { id } = c.req.valid("param");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Fetch job (ownership verified by middleware)
 				const job = await facilityService.getJobById(
 					id,
-					facilityProfile.facilityId,
+					staffProfile.facilityId,
 				);
 
 				return c.json({
@@ -220,7 +299,7 @@ const app = new Hono<{ Variables: AppVariables }>()
 			try {
 				const { id } = c.req.valid("param");
 				const body = c.req.valid("json");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Transform string dates to Date objects for Prisma
 				const transformedData = {
@@ -232,7 +311,7 @@ const app = new Hono<{ Variables: AppVariables }>()
 				// Update job (ownership verified by middleware)
 				const updatedJob = await facilityService.updateJob(
 					id,
-					facilityProfile.facilityId,
+					staffProfile.facilityId,
 					transformedData,
 				);
 
@@ -267,12 +346,12 @@ const app = new Hono<{ Variables: AppVariables }>()
 		async (c) => {
 			try {
 				const { id } = c.req.valid("param");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Get job applicants (ownership verified by middleware)
 				const applicants = await facilityService.getJobApplicants(
 					id,
-					facilityProfile.facilityId,
+					staffProfile.facilityId,
 				);
 
 				return c.json({
@@ -306,10 +385,10 @@ const app = new Hono<{ Variables: AppVariables }>()
 		async (c) => {
 			try {
 				const { id } = c.req.valid("param");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Close job (ownership verified by middleware)
-				await facilityService.closeJob(id, facilityProfile.facilityId);
+				await facilityService.closeJob(id, staffProfile.facilityId);
 
 				return c.json({
 					success: true,
@@ -341,10 +420,10 @@ const app = new Hono<{ Variables: AppVariables }>()
 		async (c) => {
 			try {
 				const { id } = c.req.valid("param");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Reopen job (ownership verified by middleware)
-				await facilityService.reopenJob(id, facilityProfile.facilityId);
+				await facilityService.reopenJob(id, staffProfile.facilityId);
 
 				return c.json({
 					success: true,
@@ -376,10 +455,10 @@ const app = new Hono<{ Variables: AppVariables }>()
 		async (c) => {
 			try {
 				const { id } = c.req.valid("param");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Delete job (ownership verified by middleware)
-				await facilityService.deleteJob(id, facilityProfile.facilityId);
+				await facilityService.deleteJob(id, staffProfile.facilityId);
 
 				return c.json({
 					success: true,
@@ -442,31 +521,38 @@ const app = new Hono<{ Variables: AppVariables }>()
 	 * Create or Register a new facility with file uploads
 	 * @USER endpoint
 	 */
-	.post("/", zValidator("form", facilityRegistrationApiSchema), async (c) => {
-		try {
-			const data = c.req.valid("form");
-			const facility = await facilityService.createFacility(data, c);
-			return c.json(
-				{
-					success: true,
-					message: "Facility registered successfully",
-					data: facility,
-				},
-				201,
-			);
-		} catch (error) {
-			console.error(error);
-			const httpError = error as HTTPException;
-			return c.json(
-				{
-					success: false,
-					message: httpError.message,
-					data: null,
-				},
-				httpError.status,
-			);
-		}
-	})
+	.post(
+		"/",
+		requireAuth,
+		zValidator("form", facilityRegistrationApiSchema),
+		async (c) => {
+			try {
+				const userId = c.get("user").id;
+				const data = c.req.valid("form");
+				await facilityService.createFacility(userId, data);
+
+				return c.json(
+					{
+						success: true,
+						message: "Facility registered successfully",
+						data: null,
+					},
+					201,
+				);
+			} catch (error) {
+				console.error(error);
+				const httpError = error as HTTPException;
+				return c.json(
+					{
+						success: false,
+						message: httpError.message,
+						data: null,
+					},
+					httpError.status,
+				);
+			}
+		},
+	)
 
 	/**
 	 * PATCH /api/v2/facilities/:id
@@ -482,10 +568,10 @@ const app = new Hono<{ Variables: AppVariables }>()
 			try {
 				const { id } = c.req.valid("param");
 				const data = c.req.valid("form");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Security: Verify facility ownership
-				if (id !== facilityProfile.facilityId) {
+				if (id !== staffProfile.facilityId) {
 					throw new HTTPException(403, {
 						message: "Forbidden - You don't have access to this facility",
 					});
@@ -520,8 +606,8 @@ const app = new Hono<{ Variables: AppVariables }>()
 	.delete("/:id", requireActiveEmployer, async (c) => {
 		try {
 			// Facility profile is already fetched and validated by middleware
-			const facilityProfile = c.get("facilityProfile");
-			await facilityService.deleteFacility(facilityProfile.id);
+			const staffProfile = c.get("staffProfile");
+			await facilityService.deleteFacility(staffProfile.facilityId);
 			return c.json({
 				success: true,
 				message: "Facility deleted successfully",
@@ -555,10 +641,10 @@ const app = new Hono<{ Variables: AppVariables }>()
 			try {
 				const { id } = c.req.valid("param");
 				const data = c.req.valid("json");
-				const facilityProfile = c.get("facilityProfile");
+				const staffProfile = c.get("staffProfile");
 
 				// Security: Verify facility ownership
-				if (id !== facilityProfile.facilityId) {
+				if (id !== staffProfile.facilityId) {
 					throw new HTTPException(403, {
 						message: "Forbidden - You don't have access to this facility",
 					});

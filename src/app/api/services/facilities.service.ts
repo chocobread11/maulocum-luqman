@@ -1,38 +1,42 @@
-import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { generateFileKey, uploadToR2 } from "@/lib/r2";
+import {
+	deleteFromR2,
+	extractKeyFromUrl,
+	generateFileKey,
+	uploadToR2,
+} from "@/lib/r2";
 import type { Prisma } from "../../../../prisma/generated/prisma/client";
 import type {
 	CreateContactInfoInput,
 	CreateReviewInput,
 	FacilityQuery,
 	FacilityRegistrationApiInput,
+	FacilityVerificationEditApiInput,
 } from "../types/facilities.types";
 import type { JobPostFormValues } from "../types/jobs.types";
 
 // Facility Service (Single Responsibility Principle)
 export class FacilityService {
 	// Create or Register a new facility
-	async createFacility(data: FacilityRegistrationApiInput, c: Context) {
+	async createFacility(userId: string, data: FacilityRegistrationApiInput) {
 		try {
-			const session = await auth.api.getSession({
-				headers: c.req.raw.headers,
-			});
-
-			if (!session) {
-				throw new HTTPException(401, { message: "Unauthorized" });
-			}
-
 			// Check if user already has a facility
 			const existingFacility = await prisma.facility.findFirst({
-				where: { ownerId: session.user.id },
+				where: { ownerId: userId },
+				select: {
+					facilityVerification: {
+						select: {
+							id: true,
+							verificationStatus: true,
+						},
+					},
+				},
 			});
 
-			if (existingFacility) {
+			if (existingFacility?.facilityVerification?.id) {
 				throw new HTTPException(400, {
-					message: "User already has a registered facility",
+					message: "User has either existing facility or pending verification",
 				});
 			}
 
@@ -64,11 +68,8 @@ export class FacilityService {
 			}
 
 			// Generate unique file keys
-			const ssmKey = generateFileKey(session.user.id, data.ssmDocument.name);
-			const licenseKey = generateFileKey(
-				session.user.id,
-				data.clinicLicense.name,
-			);
+			const ssmKey = generateFileKey(userId, data.ssmDocument.name);
+			const licenseKey = generateFileKey(userId, data.clinicLicense.name);
 
 			// Convert Files to Buffers
 			const [ssmArrayBuffer, licenseArrayBuffer] = await Promise.all([
@@ -92,18 +93,15 @@ export class FacilityService {
 					address: data.address,
 					contactEmail: data.companyEmail,
 					contactPhone: data.companyPhone,
-					ownerId: session.user.id,
-				},
-			});
-
-			// Create facility verification record with uploaded file URLs
-			await prisma.facilityVerification.create({
-				data: {
-					facilityId: facility.id,
-					businessRegistrationNo: "PENDING", // Will be extracted from document
-					businessDocumentUrl: ssmResult.url,
-					licenseDocumentUrl: licenseResult.url,
-					verificationStatus: "PENDING",
+					ownerId: userId,
+					facilityVerification: {
+						create: {
+							businessRegistrationNo: "", // TODO: Will be extracted from document
+							businessDocumentUrl: licenseResult.url,
+							licenseDocumentUrl: ssmResult.url,
+							verificationStatus: "PENDING",
+						},
+					},
 				},
 			});
 
@@ -138,6 +136,251 @@ export class FacilityService {
 					verificationStatus.equals === "APPROVED" ? new Date() : null,
 			},
 		});
+	}
+
+	/**
+	 * Check if facility verification is editable
+	 * Editable when: PENDING or (REJECTED and allowAppeal is true)
+	 */
+	private isVerificationEditable(verification: {
+		verificationStatus: string;
+		allowAppeal: boolean;
+	}): boolean {
+		return (
+			verification.verificationStatus === "PENDING" ||
+			(verification.verificationStatus === "REJECTED" &&
+				verification.allowAppeal)
+		);
+	}
+
+	/**
+	 * Get facility verification status with editable flag
+	 */
+	async getFacilityVerificationStatus(userId: string) {
+		try {
+			const verification = await prisma.user.findUnique({
+				where: { id: userId },
+				select: {
+					ownedFacilities: {
+						select: {
+							facilityVerification: {
+								select: {
+									id: true,
+									facility: {
+										select: {
+											name: true,
+											address: true,
+											contactEmail: true,
+											contactPhone: true,
+										},
+									},
+									facilityId: true,
+									verificationStatus: true,
+									rejectionReason: true,
+									allowAppeal: true,
+									businessDocumentUrl: true,
+									licenseDocumentUrl: true,
+								},
+							},
+						},
+					},
+				},
+			});
+
+			if (!verification || verification.ownedFacilities.length === 0) {
+				throw new HTTPException(404, {
+					message: "No facilities found for this user",
+				});
+			}
+
+			// Extract the first facility's verification data
+			const facilityVerification =
+				verification.ownedFacilities[0]?.facilityVerification;
+
+			if (!facilityVerification) {
+				throw new HTTPException(404, {
+					message: "Facility verification not found",
+				});
+			}
+
+			return {
+				...facilityVerification,
+				canEdit: this.isVerificationEditable(facilityVerification),
+			};
+		} catch (error) {
+			console.error(
+				"Error in facility.service.getFacilityVerificationStatus:",
+				error,
+			);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, {
+				message: "Failed to get facility verification status",
+			});
+		}
+	}
+
+	/**
+	 * Update facility verification details with optional file uploads
+	 * Only allowed for PENDING or REJECTED with allowAppeal
+	 */
+	async updateFacilityVerificationDetails(
+		userId: string,
+		data: FacilityVerificationEditApiInput,
+	) {
+		try {
+			// Check if verification exists
+			const verification = await prisma.user.findUnique({
+				where: { id: userId },
+				select: {
+					ownedFacilities: {
+						select: {
+							facilityVerification: {
+								select: {
+									id: true,
+									facilityId: true,
+									verificationStatus: true,
+									allowAppeal: true,
+									businessDocumentUrl: true,
+									licenseDocumentUrl: true,
+								},
+							},
+						},
+					},
+				},
+			});
+
+			if (!verification || verification.ownedFacilities.length === 0) {
+				throw new HTTPException(404, {
+					message: "Facility verification not found",
+				});
+			}
+
+			const facility = verification.ownedFacilities[0];
+			if (!facility?.facilityVerification) {
+				throw new HTTPException(404, {
+					message: "Facility verification not found",
+				});
+			}
+
+			if (!this.isVerificationEditable(facility.facilityVerification)) {
+				throw new HTTPException(400, {
+					message: "You are not allowed to edit this verification",
+				});
+			}
+
+			// Validate and upload files if provided
+			const allowedTypes = [
+				"application/pdf",
+				"image/jpeg",
+				"image/png",
+				"image/jpg",
+			];
+			const maxSize = 1 * 1024 * 1024; // 1MB
+
+			let newSsmDocumentUrl: string | undefined;
+			let newLicenseDocumentUrl: string | undefined;
+
+			// Handle SSM document upload
+			if (data.ssmDocument) {
+				if (!allowedTypes.includes(data.ssmDocument.type)) {
+					throw new HTTPException(400, {
+						message:
+							"Invalid SSM document type. Only PDF or images are allowed",
+					});
+				}
+				if (data.ssmDocument.size > maxSize) {
+					throw new HTTPException(400, {
+						message: "SSM document must be less than 1MB",
+					});
+				}
+
+				const arrayBuffer = await data.ssmDocument.arrayBuffer();
+				const buffer = Buffer.from(arrayBuffer);
+				const fileKey = generateFileKey(userId, data.ssmDocument.name);
+				const result = await uploadToR2(buffer, fileKey, data.ssmDocument.type);
+				newSsmDocumentUrl = result.url;
+
+				// Delete old SSM document
+				if (facility.facilityVerification.businessDocumentUrl) {
+					const oldKey = extractKeyFromUrl(
+						facility.facilityVerification.businessDocumentUrl,
+					);
+					await deleteFromR2(oldKey);
+				}
+			}
+
+			// Handle clinic license upload
+			if (data.clinicLicense) {
+				if (!allowedTypes.includes(data.clinicLicense.type)) {
+					throw new HTTPException(400, {
+						message:
+							"Invalid clinic license type. Only PDF or images are allowed",
+					});
+				}
+				if (data.clinicLicense.size > maxSize) {
+					throw new HTTPException(400, {
+						message: "Clinic license must be less than 1MB",
+					});
+				}
+
+				const arrayBuffer = await data.clinicLicense.arrayBuffer();
+				const buffer = Buffer.from(arrayBuffer);
+				const fileKey = generateFileKey(userId, data.clinicLicense.name);
+				const result = await uploadToR2(
+					buffer,
+					fileKey,
+					data.clinicLicense.type,
+				);
+				newLicenseDocumentUrl = result.url;
+
+				// Delete old license document
+				if (facility.facilityVerification.licenseDocumentUrl) {
+					const oldKey = extractKeyFromUrl(
+						facility.facilityVerification.licenseDocumentUrl,
+					);
+					await deleteFromR2(oldKey);
+				}
+			}
+
+			// Update facility and verification in a transaction
+			await prisma.$transaction([
+				prisma.facility.update({
+					where: { id: facility.facilityVerification.facilityId },
+					data: {
+						name: data.companyName,
+						address: data.address,
+						contactEmail: data.companyEmail,
+						contactPhone: data.companyPhone,
+						updatedAt: new Date(),
+					},
+				}),
+				prisma.facilityVerification.update({
+					where: { id: facility.facilityVerification.id },
+					data: {
+						verificationStatus: "PENDING",
+						rejectionReason: null,
+						reviewedAt: null,
+						...(newSsmDocumentUrl && {
+							businessDocumentUrl: newSsmDocumentUrl,
+						}),
+						...(newLicenseDocumentUrl && {
+							licenseDocumentUrl: newLicenseDocumentUrl,
+						}),
+					},
+				}),
+			]);
+
+			return { success: true };
+		} catch (error) {
+			console.error(
+				"Error in facility.service.updateFacilityVerificationDetails:",
+				error,
+			);
+			if (error instanceof HTTPException) throw error;
+			throw new HTTPException(500, {
+				message: "Failed to update facility verification",
+			});
+		}
 	}
 
 	// Get facility by ID
@@ -334,7 +577,7 @@ export class FacilityService {
 	 */
 	async getUserFacilityProfile(userId: string) {
 		try {
-			const facility = await prisma.userFacilityProfile.findUnique({
+			const facility = await prisma.staffProfile.findUnique({
 				where: {
 					userId,
 				},
@@ -376,18 +619,14 @@ export class FacilityService {
 	}
 
 	// Post a job for employer's facility
-	async postJob(
-		data: JobPostFormValues,
-		facilityId: string,
-		userFacilityProfileId: string,
-	) {
+	async postJob(data: JobPostFormValues, facilityId: string, staffId: string) {
 		try {
 			// Create the job
 			await prisma.job.create({
 				data: {
 					...data,
 					facilityId,
-					userFacilityProfileId,
+					staffId,
 				},
 			});
 		} catch (error) {
