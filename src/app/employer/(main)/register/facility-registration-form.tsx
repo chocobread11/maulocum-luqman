@@ -2,8 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { CheckCircle, Upload } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
 	type FacilityRegistrationInput,
@@ -32,8 +31,6 @@ import { Separator } from "@/components/ui/separator";
 import { client } from "@/lib/rpc";
 
 export function FacilityRegistrationForm() {
-	const router = useRouter();
-
 	const form = useForm<FacilityRegistrationInput>({
 		resolver: zodResolver(facilityRegistrationSchema),
 		defaultValues: {
@@ -73,44 +70,13 @@ export function FacilityRegistrationForm() {
 
 			return response.json();
 		},
+		onSuccess: () => {
+			window.location.reload();
+		},
 	});
 
 	async function onSubmit(values: FacilityRegistrationInput) {
 		mutation.mutate(values);
-	}
-
-	if (mutation.isSuccess) {
-		return (
-			<Card className="bg-white text-center">
-				<CardHeader>
-					<div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-						<CheckCircle className="h-8 w-8 text-green-600" />
-					</div>
-					<CardTitle className="text-2xl">
-						Thank You for Your Submission
-					</CardTitle>
-					<CardDescription className="text-lg">
-						We have received your facility verification request
-					</CardDescription>
-				</CardHeader>
-				<CardContent className="pb-8">
-					<p className="mb-4">
-						Our team will review your credentials and documentation within 3-5
-						business days. You will receive an email notification once the
-						verification process is complete.
-					</p>
-					<p>
-						If you have any questions, please contact our support team at
-						support@medlocum.com
-					</p>
-				</CardContent>
-				<CardFooter className="justify-center">
-					<Button onClick={() => router.push("/employer/dashboard")}>
-						Go to Dashboard
-					</Button>
-				</CardFooter>
-			</Card>
-		);
 	}
 
 	return (

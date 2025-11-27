@@ -348,17 +348,30 @@ const renderMenuItem = (item: MenuItem) => {
 
 	return (
 		<NavigationMenuItem key={item.title}>
-			<Link
-				className={cn(
-					"group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground",
-					item.className || "text-muted-foreground",
-					item.title === "Locum Site" && "bg-background",
-				)}
-				href={item.url}
-			>
-				{item.icon && <span className="mr-2">{item.icon}</span>}
-				{item.title}
-			</Link>
+			{item.title === "Locum Site" ? (
+				<a
+					className={cn(
+						"group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground",
+						item.className || "text-muted-foreground",
+						item.title === "Locum Site" && "bg-background",
+					)}
+					href={item.url}
+				>
+					{item.icon && <span className="mr-2">{item.icon}</span>}
+					{item.title}
+				</a>
+			) : (
+				<Link
+					className={cn(
+						"group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-primary-foreground",
+						item.className || "text-muted-foreground",
+					)}
+					href={item.url}
+				>
+					{item.icon && <span className="mr-2">{item.icon}</span>}
+					{item.title}
+				</Link>
+			)}
 		</NavigationMenuItem>
 	);
 };

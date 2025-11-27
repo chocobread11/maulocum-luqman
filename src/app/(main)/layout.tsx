@@ -7,10 +7,10 @@ export default function MainLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<>
+		<main>
 			<MainNavbar />
-			{children}
+			<div className="min-h-screen">{children}</div>
 			<Footerdemo />
-		</>
+		</main>
 	);
 }
