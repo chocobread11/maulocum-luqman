@@ -51,7 +51,7 @@ function JobList({ jobListings: data }: { jobListings: JobResponse }) {
 		);
 	}
 	return (
-		<div className="w-full md:w-[340px] shrink-0 space-y-3">
+		<div className="w-full md:w-[500px] shrink-0 space-y-3">
 			{jobListings.jobs.map((job, index) => {
 				const isSelected = selectedJobId === job.id;
 				const isNew = index === 0;

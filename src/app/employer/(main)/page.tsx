@@ -172,10 +172,10 @@ export default function EmployerPage() {
 		<div className="flex flex-col min-h-screen">
 			{/* Hero Section */}
 			<section className="relative pt-12 pb-8 lg:pt-20 lg:pb-12 overflow-hidden">
-				{/* Background */}
-				<div className="absolute inset-0 -z-10 bg-slate-950" />
-				<div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-violet-900/30 via-slate-950 to-slate-950" />
-				<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-blue-500/10 to-transparent blur-3xl" />
+				{/* Background - Warm dark with orange/amber glow */}
+				<div className="absolute inset-0 -z-10 bg-orange-50" />
+				<div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-orange-900/30 via-slate-950 to-slate-950" />
+				<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-500/15 to-transparent blur-3xl" />
 
 				<div className="container mx-auto px-4">
 					<div className="max-w-6xl mx-auto">
@@ -186,15 +186,15 @@ export default function EmployerPage() {
 							transition={{ duration: 0.6 }}
 							className="text-center mb-12 lg:mb-16"
 						>
-							<Badge className="mb-6 px-4 py-2 text-sm font-medium bg-white/10 text-white/90 hover:bg-white/15 rounded-full border border-white/10">
+							<Badge className="mb-6 px-4 py-2 text-sm font-medium hover:bg-white/15 rounded-full border border-white/10">
 								<Building2 className="w-4 h-4 mr-2" />
 								For Healthcare Facilities
 							</Badge>
 
-							<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
+							<h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-[1.1]">
 								Hire verified locums
 								<br />
-								<span className="text-transparent bg-clip-text bg-linear-to-r from-blue-400 via-violet-400 to-purple-400">
+								<span className="text-transparent bg-clip-text bg-linear-to-r from-orange-400 via-amber-400 to-yellow-400">
 									in minutes, not days
 								</span>
 							</h1>
@@ -234,7 +234,7 @@ export default function EmployerPage() {
 							className="relative"
 						>
 							{/* Glow effect */}
-							<div className="absolute -inset-4 bg-linear-to-r from-blue-500/20 via-violet-500/20 to-purple-500/20 rounded-3xl blur-2xl" />
+							<div className="absolute -inset-4 bg-linear-to-r from-orange-500/20 via-amber-500/20 to-teal-500/20 rounded-3xl blur-2xl" />
 
 							{/* Browser Frame */}
 							<div className="relative bg-slate-900 rounded-xl lg:rounded-2xl shadow-2xl border border-slate-800 overflow-hidden">
@@ -261,7 +261,7 @@ export default function EmployerPage() {
 											{/* Facility Card */}
 											<div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200/60">
 												<div className="flex items-center gap-3 mb-4">
-													<div className="w-11 h-11 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-violet-500/20">
+													<div className="w-11 h-11 rounded-xl bg-linear-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/20">
 														KPJ
 													</div>
 													<div>
@@ -708,7 +708,7 @@ export default function EmployerPage() {
 
 			{/* CTA Section */}
 			<section className="py-20 bg-slate-900 text-white relative overflow-hidden">
-				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-violet-900/40 to-transparent" />
+				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-orange-900/40 to-transparent" />
 				<div className="container mx-auto px-4 relative z-10">
 					<div className="max-w-4xl mx-auto text-center">
 						<motion.div {...fadeInUp}>

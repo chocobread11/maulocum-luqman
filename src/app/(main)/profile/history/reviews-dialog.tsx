@@ -91,7 +91,6 @@ function StarRating({
 }
 
 function ReviewsDialog({
-	facilityId = "",
 	facilityName = "Facility",
 	onSubmitReview,
 	trigger,

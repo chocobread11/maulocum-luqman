@@ -3,7 +3,6 @@
 import {
 	ChevronDown,
 	ChevronUp,
-	FileText,
 	Heart,
 	History,
 	Menu,
