@@ -3,6 +3,7 @@
 import { Bell, Book, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import {
 	Accordion,
 	AccordionContent,
@@ -25,6 +26,12 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+	Heart,
+	History,
+	Settings,
+	User,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -51,6 +58,7 @@ interface Navbar1Props {
 	mobileExtraLinks?: {
 		name: string;
 		url: string;
+		icon?: React.ReactNode;
 	}[];
 	auth?: {
 		login: {
@@ -110,10 +118,10 @@ const MainNavbar = ({
 		},
 	],
 	mobileExtraLinks = [
-		{ name: "Press", url: "#" },
-		{ name: "Contact", url: "#" },
-		{ name: "Imprint", url: "#" },
-		{ name: "Sitemap", url: "#" },
+		{ name: "Profile",icon: <User className="h-4 w-4" />, url: "/profile" },
+		{ name: "History", icon: <History className="h-4 w-4" />, url: "/profile/history" },
+		{ name: "Bookmarks", icon: <Heart className="h-4 w-4" />, url: "/profile/bookmarks" },
+		{ name: "Settings", icon: <Settings className="h-4 w-4" />, url: "/profile/settings" },
 	],
 	auth = {
 		login: { text: "Log in", url: "/login" },
@@ -121,6 +129,7 @@ const MainNavbar = ({
 	},
 }: Navbar1Props) => {
 	const { data: session, isPending } = authClient.useSession();
+	const [isSheetOpen, setIsSheetOpen] = useState(false);
 
 	const handleLogout = async () => {
 		await authClient.signOut({
@@ -130,6 +139,10 @@ const MainNavbar = ({
 				},
 			},
 		});
+	};
+
+	const closeSheet = () => {
+		setIsSheetOpen(false);
 	};
 	return (
 		<section className="py-4 sticky top-0 z-50 bg-card">
@@ -208,7 +221,7 @@ const MainNavbar = ({
 							/>
 							<span className="text-lg font-semibold">{logo.title}</span>
 						</Link>
-						<Sheet>
+						<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
 							<SheetTrigger asChild>
 								<Button variant="outline" size="icon">
 									<Menu className="size-4" />
@@ -217,7 +230,7 @@ const MainNavbar = ({
 							<SheetContent className="overflow-y-auto">
 								<SheetHeader>
 									<SheetTitle>
-										<Link href={logo.url} className="flex items-center gap-2">
+										<Link href={logo.url} className="flex items-center gap-2" onClick={closeSheet}>
 											<Image
 												src={logo.src}
 												width={32}
@@ -237,16 +250,23 @@ const MainNavbar = ({
 										collapsible
 										className="flex w-full flex-col gap-4"
 									>
-										{menu.map((item) => renderMobileMenuItem(item))}
+										{menu.map((item) => renderMobileMenuItem(item, closeSheet))}
 									</Accordion>
 									<div className="border-t py-4">
+									<div className="flex justify-center text-lg font-semibold mb-2">
+										Menu 
+									</div>
 										<div className="grid grid-cols-2 justify-start">
 											{mobileExtraLinks.map((link, idx) => (
 												<Link
 													key={idx}
-													className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground"
+													className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground active:scale-95 active:bg-muted"
 													href={link.url}
+													onClick={closeSheet}
 												>
+													{link.icon && (
+														<span className="inline-flex items-center ">{link.icon}</span>
+													)}
 													{link.name}
 												</Link>
 											))}
@@ -274,13 +294,13 @@ const MainNavbar = ({
 														</p>
 													</div>
 												</div>
-												<Button onClick={handleLogout} variant="outline">
+												<Button onClick={() => { handleLogout(); closeSheet(); }} variant="outline" className="active:scale-95">
 													Log out
 												</Button>
 											</>
 										) : (
-											<Button asChild variant="outline">
-												<Link href={auth.login.url}>{auth.login.text}</Link>
+											<Button asChild variant="outline" className="active:scale-95">
+												<Link href={auth.login.url} onClick={closeSheet}>{auth.login.text}</Link>
 											</Button>
 										)}
 									</div>
@@ -364,7 +384,7 @@ const renderMenuItem = (item: MenuItem) => {
 	);
 };
 
-const renderMobileMenuItem = (item: MenuItem) => {
+const renderMobileMenuItem = (item: MenuItem, closeSheet: () => void) => {
 	if (item.items) {
 		return (
 			<AccordionItem key={item.title} value={item.title} className="border-b-0">
@@ -376,9 +396,10 @@ const renderMobileMenuItem = (item: MenuItem) => {
 						<Link
 							key={subItem.title}
 							className={
-								"flex select-none gap-4 rounded-md p-3 leading-none outline-none transition-colors hover:bg-muted hover:text-accent-foreground"
+								"flex select-none gap-4 rounded-md p-3 leading-none outline-none transition-colors hover:bg-muted hover:text-accent-foreground active:scale-95 active:bg-muted"
 							}
 							href={subItem.url}
+							onClick={closeSheet}
 						>
 							{subItem.icon}
 							<div>
@@ -400,7 +421,8 @@ const renderMobileMenuItem = (item: MenuItem) => {
 		<Link
 			key={item.title}
 			href={item.url}
-			className={cn("font-semibold", item.className)}
+			className={cn("font-semibold active:scale-95 transition-transform", item.className)}
+			onClick={closeSheet}
 		>
 			{item.title}
 		</Link>
