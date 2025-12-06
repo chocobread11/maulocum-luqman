@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Book, Menu } from "lucide-react";
+import { Bell, Book, Heart, History, Menu, Settings, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -26,12 +26,6 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-	Heart,
-	History,
-	Settings,
-	User,
-} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -118,10 +112,22 @@ const MainNavbar = ({
 		},
 	],
 	mobileExtraLinks = [
-		{ name: "Profile",icon: <User className="h-4 w-4" />, url: "/profile" },
-		{ name: "History", icon: <History className="h-4 w-4" />, url: "/profile/history" },
-		{ name: "Bookmarks", icon: <Heart className="h-4 w-4" />, url: "/profile/bookmarks" },
-		{ name: "Settings", icon: <Settings className="h-4 w-4" />, url: "/profile/settings" },
+		{ name: "Profile", icon: <User className="h-4 w-4" />, url: "/profile" },
+		{
+			name: "History",
+			icon: <History className="h-4 w-4" />,
+			url: "/profile/history",
+		},
+		{
+			name: "Bookmarks",
+			icon: <Heart className="h-4 w-4" />,
+			url: "/profile/bookmarks",
+		},
+		{
+			name: "Settings",
+			icon: <Settings className="h-4 w-4" />,
+			url: "/profile/settings",
+		},
 	],
 	auth = {
 		login: { text: "Log in", url: "/login" },
@@ -230,7 +236,11 @@ const MainNavbar = ({
 							<SheetContent className="overflow-y-auto">
 								<SheetHeader>
 									<SheetTitle>
-										<Link href={logo.url} className="flex items-center gap-2" onClick={closeSheet}>
+										<Link
+											href={logo.url}
+											className="flex items-center gap-2"
+											onClick={closeSheet}
+										>
 											<Image
 												src={logo.src}
 												width={32}
@@ -253,9 +263,9 @@ const MainNavbar = ({
 										{menu.map((item) => renderMobileMenuItem(item, closeSheet))}
 									</Accordion>
 									<div className="border-t py-4">
-									<div className="flex justify-center text-lg font-semibold mb-2">
-										Menu 
-									</div>
+										<div className="flex justify-center text-lg font-semibold mb-2">
+											Menu
+										</div>
 										<div className="grid grid-cols-2 justify-start">
 											{mobileExtraLinks.map((link, idx) => (
 												<Link
@@ -265,7 +275,9 @@ const MainNavbar = ({
 													onClick={closeSheet}
 												>
 													{link.icon && (
-														<span className="inline-flex items-center ">{link.icon}</span>
+														<span className="inline-flex items-center ">
+															{link.icon}
+														</span>
 													)}
 													{link.name}
 												</Link>
@@ -294,13 +306,26 @@ const MainNavbar = ({
 														</p>
 													</div>
 												</div>
-												<Button onClick={() => { handleLogout(); closeSheet(); }} variant="outline" className="active:scale-95">
+												<Button
+													onClick={() => {
+														handleLogout();
+														closeSheet();
+													}}
+													variant="outline"
+													className="active:scale-95"
+												>
 													Log out
 												</Button>
 											</>
 										) : (
-											<Button asChild variant="outline" className="active:scale-95">
-												<Link href={auth.login.url} onClick={closeSheet}>{auth.login.text}</Link>
+											<Button
+												asChild
+												variant="outline"
+												className="active:scale-95"
+											>
+												<Link href={auth.login.url} onClick={closeSheet}>
+													{auth.login.text}
+												</Link>
 											</Button>
 										)}
 									</div>
@@ -421,7 +446,10 @@ const renderMobileMenuItem = (item: MenuItem, closeSheet: () => void) => {
 		<Link
 			key={item.title}
 			href={item.url}
-			className={cn("font-semibold active:scale-95 transition-transform", item.className)}
+			className={cn(
+				"font-semibold active:scale-95 transition-transform",
+				item.className,
+			)}
 			onClick={closeSheet}
 		>
 			{item.title}
