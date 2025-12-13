@@ -112,7 +112,9 @@ const MainNavbar = ({
 		},
 	],
 	mobileExtraLinks = [
-		{ name: "Profile", icon: <User className="h-4 w-4" />, url: "/profile" },
+		{ 	name: "Profile", 
+			icon: <User className="h-4 w-4" />,
+			url: "/profile" },
 		{
 			name: "History",
 			icon: <History className="h-4 w-4" />,

@@ -11,7 +11,7 @@ function EmployerAppSidebar() {
 			data={{
 				header: {
 					title: facilityName || "MauLocum",
-					url: "/employer/dashboard",
+					url: "/employer",
 				},
 				basic: [
 					{
