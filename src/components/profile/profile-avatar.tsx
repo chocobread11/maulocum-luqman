@@ -7,6 +7,7 @@ import {
 	type LucideIcon,
 	Settings,
 	Stethoscope,
+	Star,
 	User,
 } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +59,9 @@ export function ProfileAvatar({
 		{ 	href: "/profile/bookmarks", 
 			label: "Bookmarks", 
 			icon: Bookmark },
+		{   href: "/profile/reviews",
+			label: "Reviews",
+			icon: Star  },
 
 		{ 	href: "/profile/settings", 
 			label: "Settings", 

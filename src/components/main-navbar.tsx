@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Book, Heart, History, Menu, Settings, User } from "lucide-react";
+import { Bell, Book, Heart, History, Menu, Settings, Star, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -98,10 +98,6 @@ const MainNavbar = ({
 			url: "/facilities",
 		},
 		{
-			title: "Contact Us",
-			url: "#",
-		},
-		{
 			title: "FAQ",
 			url: "/faqs",
 		},
@@ -120,6 +116,11 @@ const MainNavbar = ({
 			icon: <History className="h-4 w-4" />,
 			url: "/profile/history",
 		},
+{
+            name: "Reviews",
+            icon: <Star className="h-4 w-4" />,
+            url: "/profile/reviews",
+        },
 		{
 			name: "Bookmarks",
 			icon: <Heart className="h-4 w-4" />,
